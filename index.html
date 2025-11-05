@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GD무역 - 중국무역 전문 회사, 고객님들에게 최고의 가치를 제공합니다">
+    <meta name="keywords" content="중국무역, GD무역, 무역대행, 물류, 수출입">
+    <title>GD무역 - 중국무역 전문 회사</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans KR', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #fff;
+        }
+
+        /* 네비게이션 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2563eb;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            font-size: 1.05em;
+        }
+
+        .nav-menu a:hover {
+            color: #2563eb;
+        }
+
+        /* 히어로 섹션 */
+        .hero {
+            margin-top: 80px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 120px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,112C1248,107,1344,117,1392,122.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.4em;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #2563eb;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #2563eb;
+        }
+
+        /* 섹션 공통 스타일 */
+        .section {
+            padding: 80px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            font-size: 1.2em;
+            color: #64748b;
+            margin-top: 20px;
+        }
+
+        /* 회사 소개 섹션 */
+        .about {
+            background: #f8fafc;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.15em;
+            color: #475569;
+            line-height: 2;
+        }
+
+        .about-features {
+            display: grid;
+            gap: 20px;
+        }
+
+        .feature-item {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #2563eb;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-item h3 {
+            color: #2563eb;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-item p {
+            color: #64748b;
+            line-height: 1.8;
+        }
+
+        /* 서비스 섹션 */
+        .services {
+            background: white;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.15);
+            border-color: #2563eb;
+        }
+
+        .service-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .service-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .service-desc {
+            color: #64748b;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        /* 비전 섹션 */
+        .vision {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .vision .section-title {
+            color: white;
+        }
+
+        .vision .section-title::after {
+            background: white;
+        }
+
+        .vision-content {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.3em;
+            line-height: 2;
+            opacity: 0.95;
+        }
+
+        .vision-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .stat-item {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* 연락처 섹션 */
+        .contact {
+            background: #f8fafc;
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 40px;
+        }
+
+        .contact-info {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .ceo-name {
+            font-size: 1.8em;
+            color: #2563eb;
+            font-weight: 700;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .contact-item {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-label {
+            font-size: 0.9em;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .contact-value {
+            font-size: 1.2em;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .contact-value a {
+            color: #2563eb;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-value a:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .contact-map {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .map-text {
+            font-size: 1.3em;
+            color: #64748b;
+            text-align: center;
+        }
+
+        /* 푸터 */
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 60px 40px 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .footer-about h3 {
+            color: white;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .footer-about p {
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .footer-section h4 {
+            color: white;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #3b82f6;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #1e293b;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-content,
+            .contact-container,
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .vision-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2em;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1em;
+            }
+
+            .section {
+                padding: 50px 20px;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+
+            .nav-logo {
+                font-size: 1.4em;
+            }
+
+            .hero {
+                padding: 80px 20px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* 스크롤 애니메이션 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">GD무역</div>
+            <ul class="nav-menu">
+                <li><a href="#about">회사소개</a></li>
+                <li><a href="#services">서비스</a></li>
+                <li><a href="#vision">비전</a></li>
+                <li><a href="#contact">연락처</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>GD무역</h1>
+            <p class="hero-subtitle">중국무역 전문 회사<br>고객님들에게 최고의 가치를 제공합니다</p>
+            <div class="hero-buttons">
+                <a href="#contact" class="btn btn-primary">상담 문의</a>
+                <a href="#services" class="btn btn-secondary">서비스 소개</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 회사 소개 -->
+    <section id="about" class="section about">
+        <div class="section-header">
+            <h2 class="section-title">회사 소개</h2>
+            <p class="section-subtitle">신뢰와 전문성을 바탕으로 성장하는 무역 전문 기업</p>
+        </div>
+        <div class="about-content fade-in">
+            <div>
+                <p class="about-text">
+                    GD무역은 중국무역 전문 기업으로, 고객님들께 최고의 가치를 제공하기 위해
+                    끊임없이 노력하고 있습니다. 풍부한 경험과 전문성을 바탕으로
+                    신뢰할 수 있는 무역 파트너가 되겠습니다.
+                </p>
+                <p class="about-text" style="margin-top: 20px;">
+                    중국 전역의 우수한 공급업체 네트워크와 체계적인 물류 시스템을 통해
+                    안정적이고 효율적인 무역 서비스를 제공합니다.
+                </p>
+            </div>
+            <div class="about-features">
+                <div class="feature-item">
+                    <h3>🎯 고객만족 최우선</h3>
+                    <p>고객의 성공이 곧 우리의 성공입니다</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🌏 중국무역 전문가</h3>
+                    <p>풍부한 경험과 노하우로 최적의 솔루션 제공</p>
+                </div>
+                <div class="feature-item">
+                    <h3>💎 최고의 가치 제공</h3>
+                    <p>합리적인 가격과 우수한 품질 보장</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 주요 서비스 -->
+    <section id="services" class="section services">
+        <div class="section-header">
+            <h2 class="section-title">주요 서비스</h2>
+            <p class="section-subtitle">전문적이고 체계적인 무역 솔루션</p>
+        </div>
+        <div class="services-grid fade-in">
+            <div class="service-card">
+                <span class="service-icon">🇨🇳</span>
+                <h3 class="service-title">중국무역</h3>
+                <p class="service-desc">
+                    중국 전역의 우수한 공급업체와의 네트워크를 통한
+                    전문 무역 서비스를 제공합니다
+                </p>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">📦</span>
+                <h3 class="service-title">물류 솔루션</h3>
+                <p class="service-desc">
+                    안전하고 신속한 배송을 위한
+                    최적화된 물류 시스템을 제공합니다
+                </p>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">🤝</span>
+                <h3 class="service-title">무역 컨설팅</h3>
+                <p class="service-desc">
+                    중국무역 전문가의 체계적인
+                    컨설팅 및 상담 서비스를 제공합니다
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 비전 섹션 -->
+    <section id="vision" class="section vision">
+        <div class="section-header">
+            <h2 class="section-title">비전</h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.9);">
+                글로벌 무역의 새로운 표준을 만들어갑니다
+            </p>
+        </div>
+        <div class="vision-content fade-in">
+            <p>
+                GD무역은 중국과 한국을 잇는 가교 역할을 넘어,
+                글로벌 무역 시장에서 신뢰받는 파트너가 되겠습니다.
+                혁신적인 서비스와 전문성으로 고객의 성공을 함께 만들어갑니다.
+            </p>
+        </div>
+        <div class="vision-stats fade-in">
+            <div class="stat-item">
+                <span class="stat-number">10+</span>
+                <span class="stat-label">년 경력</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100+</span>
+                <span class="stat-label">거래처</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">고객 지원</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 연락처 -->
+    <section id="contact" class="section contact">
+        <div class="section-header">
+            <h2 class="section-title">연락처</h2>
+            <p class="section-subtitle">언제든지 문의해 주세요</p>
+        </div>
+        <div class="contact-container fade-in">
+            <div class="contact-info">
+                <div class="ceo-name">GD무역 대표 이상섭 올림</div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <div class="contact-details">
+                        <div class="contact-label">전화번호</div>
+                        <div class="contact-value">
+                            <a href="tel:010-8781-3083">010-8781-3083</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">💬</div>
+                    <div class="contact-details">
+                        <div class="contact-label">카카오톡</div>
+                        <div class="contact-value">azlee11</div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">✉️</div>
+                    <div class="contact-details">
+                        <div class="contact-label">이메일</div>
+                        <div class="contact-value">
+                            <a href="mailto:sup0827@naver.com">sup0827@naver.com</a><br>
+                            <a href="mailto:biggatewholesale@gmail.com">biggatewholesale@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">🌐</div>
+                    <div class="contact-details">
+                        <div class="contact-label">웹사이트</div>
+                        <div class="contact-value">
+                            <a href="https://gdtrading08.com">gdtrading08.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-map">
+                <div class="map-placeholder">🗺️</div>
+                <p class="map-text">
+                    <strong>위치:</strong> 대한민국<br>
+                    중국무역의 중심에서 고객님과 함께합니다
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <h3>GD무역</h3>
+                <p>
+                    중국무역 전문 회사로서 고객님들에게 최고의 가치를 제공하기 위해
+                    끊임없이 노력하고 있습니다.
+                </p>
+                <p>
+                    신뢰와 전문성을 바탕으로 고객의 성공을 함께 만들어갑니다.
+                </p>
+            </div>
+            <div class="footer-section">
+                <h4>바로가기</h4>
+                <ul class="footer-links">
+                    <li><a href="#about">회사소개</a></li>
+                    <li><a href="#services">서비스</a></li>
+                    <li><a href="#vision">비전</a></li>
+                    <li><a href="#contact">연락처</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>문의</h4>
+                <ul class="footer-links">
+                    <li><a href="tel:010-8781-3083">010-8781-3083</a></li>
+                    <li><a href="mailto:sup0827@naver.com">sup0827@naver.com</a></li>
+                    <li>카카오톡: azlee11</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 GD무역. All rights reserved. | 대표: 이상섭 | 대한민국</p>
+        </div>
+    </footer>
+
+    <!-- 스크롤 애니메이션 스크립트 -->
+    <script>
+        // 스크롤 애니메이션
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = 80;
+                    const targetPosition = target.offsetTop - offset;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 네비게이션 스크롤 효과
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                navbar.style.padding = '10px 0';
+            } else {
+                navbar.style.padding = '20px 0';
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
