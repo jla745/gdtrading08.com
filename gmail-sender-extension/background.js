@@ -718,8 +718,69 @@ async function processSingleEmail(item, retryCount = 0) {
   }
 }
 
+// 수신거부 목록 캐시
+let unsubscribedCache = null;
+let unsubscribedCacheTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5분 캐시
+
+// 수신거부 목록 가져오기 (캐싱 적용)
+async function getUnsubscribedList() {
+  const now = Date.now();
+
+  // 캐시가 유효하면 캐시 반환
+  if (unsubscribedCache && (now - unsubscribedCacheTime < CACHE_DURATION)) {
+    return unsubscribedCache;
+  }
+
+  try {
+    const SUPABASE_URL = 'https://gzybrgmclouskftiiglg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6eWJyZ21jbG91c2tmdGlpZ2xnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjQ4MDUyNywiZXhwIjoyMDc4MDU2NTI3fQ.vWe3-_-QfbWmc8EiVgFo8sXNI3FVsJMSGTbwrEkWKMo';
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/unsubscribed?select=email`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`수신거부 목록 로드 실패: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const emailSet = new Set(data.map(item => item.email.toLowerCase().trim()));
+
+    // 캐시 업데이트
+    unsubscribedCache = emailSet;
+    unsubscribedCacheTime = now;
+
+    log(`📋 수신거부 목록 로드 완료: ${emailSet.size}개`, 'info');
+    return emailSet;
+  } catch (error) {
+    log(`❌ 수신거부 목록 로드 오류: ${error.message}`, 'error');
+    // 오류 시 빈 Set 반환 (발송은 계속 진행)
+    return new Set();
+  }
+}
+
+// 수신거부 체크 함수
+async function isUnsubscribed(email) {
+  const unsubscribed = await getUnsubscribedList();
+  return unsubscribed.has(email.toLowerCase().trim());
+}
+
 // MailerSend로 이메일 발송 (단일 함수)
 async function sendEmailUnified(to, subject, content, imageUrl = '', attachments = [], retryCount = 0, campaignId = null) {
+  // 수신거부 체크
+  if (await isUnsubscribed(to)) {
+    log(`🚫 수신거부됨: ${to}`, 'warning');
+    return { success: false, error: '수신거부된 이메일' };
+  }
+
   // MailerSend로 발송
   try {
     // 발신 이메일 가져오기
