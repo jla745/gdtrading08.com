@@ -9,6 +9,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 성능 최적화 설정
+app.set('trust proxy', 1); // Railway 프록시 신뢰
+app.set('x-powered-by', false); // 보안 헤더 제거
+
 // CORS 허용
 app.use(cors());
 app.use(express.json());
@@ -380,44 +384,27 @@ app.get('/api/stats/:campaign_id', (req, res) => {
   );
 });
 
-// ⭐ 수신거부 페이지 (GET)
-app.get('/unsubscribe', (req, res) => {
-  const { email } = req.query;
+// 정적 수신거부 HTML (미리 생성)
+const UNSUBSCRIBE_HTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>수신거부</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;text-align:center;padding:50px 20px}h1{color:#dc3545}.btn{padding:12px 30px;font-size:16px;border:none;border-radius:6px;cursor:pointer;margin:5px}.btn-c{background:#dc3545;color:#fff}.btn-x{background:#6c757d;color:#fff}#r{margin-top:20px;padding:15px;border-radius:6px;display:none}.s{background:#d4edda;color:#155724}.e{background:#f8d7da;color:#721c24}</style></head><body><h1>🚫 수신거부</h1><p>더 이상 이메일을 받지 않으시겠습니까?</p><button class="btn btn-c" onclick="c()">✅ 확인</button><button class="btn btn-x" onclick="window.close()">❌ 취소</button><div id="r"></div><script>const u=new URLSearchParams(location.search);const e=u.get('email');async function c(){const r=document.getElementById('r');r.style.display='block';r.textContent='처리 중...';try{const res=await fetch('/api/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e})});const d=await res.json();r.className=d.success?'s':'e';r.textContent=d.success?'✅ 수신거부 완료':'❌ '+d.message;if(d.success)setTimeout(()=>{document.querySelector('.btn-c').style.display='none'},1000)}catch(err){r.className='e';r.textContent='❌ 오류'}}</script></body></html>`;
 
-  // 빠른 응답을 위한 헤더 설정
+const ERROR_HTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>오류</title></head><body style="text-align:center;padding:50px;font-family:Arial"><h1>❌ 이메일 주소가 필요합니다</h1></body></html>`;
+
+// ⭐ 수신거부 페이지 (GET) - 최적화됨
+app.get('/unsubscribe', (req, res) => {
+  // 즉시 응답
   res.set({
-    'Cache-Control': 'no-cache',
-    'Content-Type': 'text/html; charset=utf-8'
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600' // 1시간 캐시
   });
 
-  if (!email) {
-    return res.status(400).send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>수신거부 오류</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
-          .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-          .error { color: #dc3545; font-size: 18px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>❌ 오류</h1>
-          <p class="error">이메일 주소가 필요합니다.</p>
-        </div>
-      </body>
-      </html>
-    `);
+  if (!req.query.email) {
+    return res.status(400).send(ERROR_HTML);
   }
 
-  // 수신거부 확인 페이지 표시 (최소화된 HTML)
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>수신거부</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;text-align:center;padding:50px 20px;background:#fff}h1{color:#dc3545}.btn{padding:12px 30px;font-size:16px;border:none;border-radius:6px;cursor:pointer;margin:5px}.btn-c{background:#dc3545;color:#fff}.btn-x{background:#6c757d;color:#fff}#r{margin-top:20px;padding:15px;border-radius:6px;display:none}.s{background:#d4edda;color:#155724}.e{background:#f8d7da;color:#721c24}</style></head><body><h1>🚫 수신거부</h1><p>더 이상 이메일을 받지 않으시겠습니까?</p><button class="btn btn-c" onclick="c()">✅ 확인</button><button class="btn btn-x" onclick="window.close()">❌ 취소</button><div id="r"></div><script>async function c(){const r=document.getElementById('r');r.style.display='block';r.textContent='처리 중...';try{const res=await fetch('/api/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:"${email}"})});const d=await res.json();if(d.success){r.className='s';r.textContent='✅ 수신거부 완료';setTimeout(()=>{document.querySelector('.btn-c').style.display='none'},1000)}else{r.className='e';r.textContent='❌ '+d.message}}catch(e){r.className='e';r.textContent='❌ 오류: '+e.message}}</script></body></html>`);
+  res.send(UNSUBSCRIBE_HTML);
 });
 
-// ⭐ 수신거부 처리 API (POST)
+// ⭐ 수신거부 처리 API (POST) - 최적화
 app.post('/api/unsubscribe', async (req, res) => {
   const { email } = req.body;
 
@@ -427,48 +414,39 @@ app.post('/api/unsubscribe', async (req, res) => {
 
   const normalizedEmail = email.toLowerCase().trim();
 
-  // Supabase에 수신거부 추가
+  // 즉시 성공 응답 (비동기로 DB 처리)
+  res.json({ success: true, message: '수신거부 처리 중입니다.' });
+
+  // Supabase에 비동기로 추가 (응답 후 처리)
   const SUPABASE_URL = 'https://gzybrgmclouskftiiglg.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6eWJyZ21jbG91c2tmdGlpZ2xnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjQ4MDUyNywiZXhwIjoyMDc4MDU2NTI3fQ.vWe3-_-QfbWmc8EiVgFo8sXNI3FVsJMSGTbwrEkWKMo';
 
-  try {
-    // UPSERT로 한 번에 처리 (중복 체크 + 추가를 동시에)
-    const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/unsubscribed`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=representation'  // UPSERT 설정
-      },
-      body: JSON.stringify({
-        email: normalizedEmail,
-        created_at: new Date().toISOString()
-      })
-    });
+  // 백그라운드에서 처리
+  setImmediate(async () => {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/unsubscribed`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=minimal'  // 최소 응답
+        },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          created_at: new Date().toISOString()
+        })
+      });
 
-    if (!insertResponse.ok) {
-      const error = await insertResponse.json();
-
-      // 중복 오류 처리 (409 또는 unique constraint violation)
-      if (insertResponse.status === 409 || (error.code && error.code === '23505')) {
-        console.log(`ℹ️ 이미 수신거부 목록에 있음: ${normalizedEmail}`);
-        return res.json({ success: true, message: '이미 수신거부 목록에 등록되어 있습니다.', duplicate: true });
+      if (response.ok) {
+        console.log(`✅ 수신거부 추가 성공: ${normalizedEmail}`);
+      } else {
+        console.log(`⚠️ 수신거부 처리 실패: ${normalizedEmail}`);
       }
-
-      console.error('❌ Supabase 추가 실패:', error);
-      return res.status(500).json({ success: false, message: `저장 실패: ${error.message || insertResponse.statusText}` });
+    } catch (error) {
+      console.error('❌ 백그라운드 수신거부 처리 오류:', error);
     }
-
-    const data = await insertResponse.json();
-    console.log(`✅ 수신거부 추가 성공: ${normalizedEmail}`);
-
-    res.json({ success: true, message: '수신거부 목록에 등록되었습니다.', data: data });
-
-  } catch (error) {
-    console.error('❌ 수신거부 처리 오류:', error);
-    res.status(500).json({ success: false, message: `오류 발생: ${error.message}` });
-  }
+  });
 });
 
 // 서버 시작
