@@ -692,8 +692,9 @@ async function processSingleEmail(item, retryCount = 0) {
     notifyPopup('updateStatus', { index: item.index, status: 'sending' });
 
     // Rate Limiter를 통한 발송
+    let emailResult;
     await rateLimiter.execute(async () => {
-      await sendEmailUnified(
+      emailResult = await sendEmailUnified(
         item.email,
         item.subject,
         item.content,
@@ -702,11 +703,26 @@ async function processSingleEmail(item, retryCount = 0) {
       );
     });
 
+    // 수신거부 또는 발송 실패 체크
+    if (!emailResult || !emailResult.success) {
+      // 수신거부나 실패는 재시도하지 않고 즉시 실패 처리
+      if (emailResult && emailResult.error === '수신거부된 이메일') {
+        throw new Error('수신거부된 이메일');
+      }
+      throw new Error(emailResult?.error || '발송 실패');
+    }
+
     // 성공 처리 (stats는 배치 레벨에서 처리하여 중복 방지!)
     return { success: true };
 
   } catch (error) {
-    // 재시도 로직
+    // 수신거부된 이메일은 재시도하지 않음
+    if (error.message === '수신거부된 이메일') {
+      log(`🚫 수신거부로 실패 처리: ${item.email}`, 'warning');
+      throw error; // 즉시 실패로 처리
+    }
+
+    // 재시도 로직 (수신거부가 아닌 경우만)
     if (retryCount < MAX_RETRIES) {
       log(`🔄 재시도 ${retryCount + 1}/${MAX_RETRIES}: ${item.email}`, 'warning');
       await sleep(2000 * (retryCount + 1)); // 선형 백오프 (2초, 4초, 6초)
