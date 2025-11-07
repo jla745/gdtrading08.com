@@ -5,8 +5,7 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# package.json들 복사
-COPY gmail-sender-extension/package.json ./
+# tracking-server package.json 복사
 COPY gmail-sender-extension/tracking-server/package.json ./gmail-sender-extension/tracking-server/
 
 # 의존성 설치
