@@ -427,8 +427,14 @@ app.post('/api/unsubscribe', async (req, res) => {
   res.json({ success: true, message: '수신거부 처리 중입니다.' });
 
   // Supabase에 비동기로 추가 (응답 후 처리)
-  const SUPABASE_URL = 'https://gzybrgmclouskftiiglg.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6eWJyZ21jbG91c2tmdGlpZ2xnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjQ4MDUyNywiZXhwIjoyMDc4MDU2NTI3fQ.vWe3-_-QfbWmc8EiVgFo8sXNI3FVsJMSGTbwrEkWKMo';
+  // 환경 변수에서 가져오기 (Railway에 설정 필요)
+  const SUPABASE_URL = process.env.SUPABASE_URL || 'https://gzybrgmclouskftiiglg.supabase.co';
+  const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+  if (!SUPABASE_ANON_KEY) {
+    console.error('⚠️ SUPABASE_ANON_KEY 환경 변수가 설정되지 않았습니다');
+    return;
+  }
 
   // 백그라운드에서 처리
   setImmediate(async () => {
