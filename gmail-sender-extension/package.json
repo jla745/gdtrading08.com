@@ -1,0 +1,12 @@
+{
+  "name": "gmail-tracking-server-proxy",
+  "version": "1.0.0",
+  "description": "Proxy package.json for Railway deployment",
+  "scripts": {
+    "install": "cd gmail-sender-extension/tracking-server && npm install",
+    "start": "cd gmail-sender-extension/tracking-server && node server.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
