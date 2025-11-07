@@ -37,7 +37,10 @@ function initDB() {
       tracking_type TEXT NOT NULL,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
       ip_address TEXT,
-      user_agent TEXT
+      user_agent TEXT,
+      event_id TEXT,
+      message_id TEXT,
+      meta_data TEXT
     )
   `, (err) => {
     if (err) {
@@ -127,30 +130,124 @@ app.post('/api/webhook/mailersend', (req, res) => {
 
   const event = req.body;
 
-  // 이벤트 타입별 처리
-  if (event.type === 'activity.hard_bounced') {
-    const email = event.data?.recipient;
-    const bounceCode = event.data?.meta?.bounce_code;
-    const bounceReason = event.data?.meta?.bounce_reason;
-    console.log(`❌ Hard Bounce: ${email} (Code: ${bounceCode}, Reason: ${bounceReason})`);
+  // ⭐ 이메일 주소 추출 (MailerSend payload 구조: data.email.recipient.email)
+  const recipientEmail = event.data?.email?.recipient?.email ||
+                         event.data?.recipient?.email ||
+                         event.data?.recipient ||
+                         'unknown';
 
-    // DB에 기록
+  const eventId = event.data?.email?.id || event.id || '';
+  const messageId = event.data?.email?.message?.id || '';
+  const timestamp = event.created_at || new Date().toISOString();
+
+  // 이벤트 타입별 처리
+  if (event.type === 'activity.sent') {
+    console.log(`📤 Sent: ${recipientEmail}`);
     db.run(
-      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, ip_address, user_agent)
-       VALUES (?, ?, 'hard_bounce', ?, ?)`,
-      ['mailersend', email, 'webhook', `Code:${bounceCode}`],
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'sent', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, 'webhook', '', eventId, messageId, JSON.stringify(event.data)],
       (err) => {
-        if (err) {
-          console.error('Hard bounce 기록 실패:', err);
-        } else {
-          console.log(`✅ Hard bounce 기록 완료: ${email}`);
-        }
+        if (err) console.error('Sent 기록 실패:', err);
+        else console.log(`✅ Sent 기록 완료: ${recipientEmail}`);
       }
     );
+
+  } else if (event.type === 'activity.delivered') {
+    console.log(`✅ Delivered: ${recipientEmail}`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'delivered', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, 'webhook', '', eventId, messageId, JSON.stringify(event.data)],
+      (err) => {
+        if (err) console.error('Delivered 기록 실패:', err);
+        else console.log(`✅ Delivered 기록 완료: ${recipientEmail}`);
+      }
+    );
+
+  } else if (event.type === 'activity.opened') {
+    const userAgent = event.data?.user_agent || '';
+    const ipAddress = event.data?.ip || '';
+    console.log(`📧 Opened: ${recipientEmail}`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, ipAddress, userAgent, eventId, messageId, JSON.stringify(event.data)],
+      (err) => {
+        if (err) console.error('Opened 기록 실패:', err);
+        else console.log(`✅ Opened 기록 완료: ${recipientEmail}`);
+      }
+    );
+
+  } else if (event.type === 'activity.clicked') {
+    const url = event.data?.url || '';
+    const userAgent = event.data?.user_agent || '';
+    const ipAddress = event.data?.ip || '';
+    console.log(`🔗 Clicked: ${recipientEmail} → ${url}`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'click', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, ipAddress, userAgent, eventId, messageId, JSON.stringify({...event.data, clicked_url: url})],
+      (err) => {
+        if (err) console.error('Clicked 기록 실패:', err);
+        else console.log(`✅ Clicked 기록 완료: ${recipientEmail}`);
+      }
+    );
+
+  } else if (event.type === 'activity.hard_bounced') {
+    const bounceCode = event.data?.bounce_code || '';
+    const bounceReason = event.data?.reason || event.data?.bounce_reason || '';
+    console.log(`❌ Hard Bounce: ${recipientEmail} (Code: ${bounceCode}, Reason: ${bounceReason})`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'hard_bounce', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, 'webhook', `Code:${bounceCode}`, eventId, messageId, JSON.stringify({...event.data, bounce_code: bounceCode, bounce_reason: bounceReason})],
+      (err) => {
+        if (err) console.error('Hard bounce 기록 실패:', err);
+        else console.log(`✅ Hard bounce 기록 완료: ${recipientEmail}`);
+      }
+    );
+
   } else if (event.type === 'activity.soft_bounced') {
-    const email = event.data?.recipient;
-    const bounceCode = event.data?.meta?.bounce_code;
-    console.log(`⚠️ Soft Bounce: ${email} (Code: ${bounceCode})`);
+    const bounceCode = event.data?.bounce_code || '';
+    const bounceReason = event.data?.reason || event.data?.bounce_reason || '';
+    console.log(`⚠️ Soft Bounce: ${recipientEmail} (Code: ${bounceCode})`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'soft_bounce', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, 'webhook', `Code:${bounceCode}`, eventId, messageId, JSON.stringify({...event.data, bounce_code: bounceCode, bounce_reason: bounceReason})],
+      (err) => {
+        if (err) console.error('Soft bounce 기록 실패:', err);
+        else console.log(`✅ Soft bounce 기록 완료: ${recipientEmail}`);
+      }
+    );
+
+  } else if (event.type === 'activity.spam') {
+    console.log(`🚨 Spam Report: ${recipientEmail}`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'spam', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, 'webhook', '', eventId, messageId, JSON.stringify(event.data)],
+      (err) => {
+        if (err) console.error('Spam 기록 실패:', err);
+        else console.log(`✅ Spam 기록 완료: ${recipientEmail}`);
+      }
+    );
+
+  } else if (event.type === 'activity.unsubscribed') {
+    console.log(`🚫 Unsubscribed: ${recipientEmail}`);
+    db.run(
+      `INSERT INTO email_tracking (campaign_id, recipient_email, tracking_type, timestamp, ip_address, user_agent, event_id, message_id, meta_data)
+       VALUES (?, ?, 'unsubscribed', ?, ?, ?, ?, ?, ?)`,
+      ['mailersend', recipientEmail, timestamp, 'webhook', '', eventId, messageId, JSON.stringify(event.data)],
+      (err) => {
+        if (err) console.error('Unsubscribed 기록 실패:', err);
+        else console.log(`✅ Unsubscribed 기록 완료: ${recipientEmail}`);
+      }
+    );
+
+  } else {
+    console.log(`ℹ️ 기타 이벤트: ${event.type} - ${recipientEmail}`);
   }
 
   // 200 응답 (MailerSend가 재시도하지 않도록)
@@ -221,7 +318,7 @@ app.get('/api/unopened-by-date', (req, res) => {
   );
 });
 
-// 전체 통계 조회
+// 전체 통계 조회 (Webhook 데이터 포함)
 app.get('/api/stats/:campaign_id', (req, res) => {
   const { campaign_id } = req.params;
 
@@ -242,19 +339,39 @@ app.get('/api/stats/:campaign_id', (req, res) => {
 
       const stats = {
         campaign_id,
+        sent: 0,
+        delivered: 0,
+        unique_delivered: 0,
         opens: 0,
         unique_opens: 0,
         clicks: 0,
-        unique_clicks: 0
+        unique_clicks: 0,
+        hard_bounces: 0,
+        soft_bounces: 0,
+        spam_reports: 0,
+        unsubscribes: 0
       };
 
       rows.forEach(row => {
-        if (row.tracking_type === 'open') {
+        if (row.tracking_type === 'sent') {
+          stats.sent = row.count;
+        } else if (row.tracking_type === 'delivered') {
+          stats.delivered = row.count;
+          stats.unique_delivered = row.unique_count;
+        } else if (row.tracking_type === 'open') {
           stats.opens = row.count;
           stats.unique_opens = row.unique_count;
         } else if (row.tracking_type === 'click') {
           stats.clicks = row.count;
           stats.unique_clicks = row.unique_count;
+        } else if (row.tracking_type === 'hard_bounce') {
+          stats.hard_bounces = row.count;
+        } else if (row.tracking_type === 'soft_bounce') {
+          stats.soft_bounces = row.count;
+        } else if (row.tracking_type === 'spam') {
+          stats.spam_reports = row.count;
+        } else if (row.tracking_type === 'unsubscribed') {
+          stats.unsubscribes = row.count;
         }
       });
 
@@ -263,11 +380,224 @@ app.get('/api/stats/:campaign_id', (req, res) => {
   );
 });
 
+// ⭐ 수신거부 페이지 (GET)
+app.get('/unsubscribe', (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>수신거부 오류</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+          .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+          .error { color: #dc3545; font-size: 18px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>❌ 오류</h1>
+          <p class="error">이메일 주소가 필요합니다.</p>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
+  // 수신거부 확인 페이지 표시
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>수신거부</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          text-align: center;
+          padding: 50px 20px;
+          background: white;
+          color: #333;
+        }
+        .container {
+          max-width: 500px;
+          margin: 0 auto;
+          background: white;
+          padding: 40px;
+          border-radius: 12px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          border: 1px solid #e0e0e0;
+        }
+        h1 { color: #dc3545; margin-bottom: 20px; }
+        p { font-size: 16px; line-height: 1.6; margin-bottom: 30px; color: #666; }
+        .email { font-weight: bold; color: #333; background: #f8f9fa; padding: 10px; border-radius: 4px; display: inline-block; }
+        .btn {
+          display: inline-block;
+          padding: 12px 30px;
+          font-size: 16px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          text-decoration: none;
+          margin: 5px;
+          transition: all 0.3s;
+        }
+        .btn-confirm {
+          background-color: #dc3545;
+          color: white;
+        }
+        .btn-confirm:hover {
+          background-color: #c82333;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        }
+        .btn-cancel {
+          background-color: #6c757d;
+          color: white;
+        }
+        .btn-cancel:hover {
+          background-color: #5a6268;
+        }
+        #result {
+          margin-top: 20px;
+          padding: 15px;
+          border-radius: 6px;
+          display: none;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>🚫 수신거부</h1>
+        <p>다음부터 더 이상 이메일을 받지 않으시겠습니까?</p>
+        <p style="margin-top: 30px;">확인 버튼을 클릭하시면 수신거부 목록에 추가됩니다.</p>
+
+        <button class="btn btn-confirm" onclick="confirmUnsubscribe()">✅ 수신거부 확인</button>
+        <button class="btn btn-cancel" onclick="window.close()">❌ 취소</button>
+
+        <div id="result"></div>
+      </div>
+
+      <script>
+        const email = "${email}";
+
+        async function confirmUnsubscribe() {
+          const resultDiv = document.getElementById('result');
+          resultDiv.style.display = 'block';
+          resultDiv.className = '';
+          resultDiv.textContent = '처리 중...';
+
+          try {
+            const response = await fetch('/api/unsubscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: email })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              resultDiv.className = 'success';
+              resultDiv.textContent = '✅ ' + data.message;
+
+              // 3초 후 버튼 숨기기
+              setTimeout(() => {
+                document.querySelector('.btn-confirm').style.display = 'none';
+                document.querySelector('.btn-cancel').textContent = '닫기';
+              }, 3000);
+            } else {
+              resultDiv.className = 'error';
+              resultDiv.textContent = '❌ ' + data.message;
+            }
+          } catch (error) {
+            resultDiv.className = 'error';
+            resultDiv.textContent = '❌ 오류가 발생했습니다: ' + error.message;
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// ⭐ 수신거부 처리 API (POST)
+app.post('/api/unsubscribe', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: '이메일이 필요합니다' });
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  // Supabase에 수신거부 추가
+  const SUPABASE_URL = 'https://gzybrgmclouskftiiglg.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6eWJyZ21jbG91c2tmdGlpZ2xnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjQ4MDUyNywiZXhwIjoyMDc4MDU2NTI3fQ.vWe3-_-QfbWmc8EiVgFo8sXNI3FVsJMSGTbwrEkWKMo';
+
+  try {
+    // 1. 중복 체크
+    const checkResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/unsubscribed?email=eq.${encodeURIComponent(normalizedEmail)}&select=email`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    const existing = await checkResponse.json();
+
+    if (existing.length > 0) {
+      console.log(`ℹ️ 이미 수신거부 목록에 있음: ${normalizedEmail}`);
+      return res.json({ success: true, message: '이미 수신거부 목록에 등록되어 있습니다.', duplicate: true });
+    }
+
+    // 2. Supabase에 추가
+    const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/unsubscribed`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        email: normalizedEmail,
+        created_at: new Date().toISOString()
+      })
+    });
+
+    if (!insertResponse.ok) {
+      const error = await insertResponse.json();
+      console.error('❌ Supabase 추가 실패:', error);
+      return res.status(500).json({ success: false, message: `저장 실패: ${error.message || insertResponse.statusText}` });
+    }
+
+    const data = await insertResponse.json();
+    console.log(`✅ 수신거부 추가 성공: ${normalizedEmail}`);
+
+    res.json({ success: true, message: '수신거부 목록에 등록되었습니다.', data: data });
+
+  } catch (error) {
+    console.error('❌ 수신거부 처리 오류:', error);
+    res.status(500).json({ success: false, message: `오류 발생: ${error.message}` });
+  }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
   console.log(`🚀 트래킹 서버 실행 중: http://localhost:${PORT}`);
   console.log(`📊 픽셀 트래킹: http://localhost:${PORT}/track.png?id=CAMPAIGN_ID&email=USER_EMAIL`);
   console.log(`🔗 링크 트래킹: http://localhost:${PORT}/redirect?id=CAMPAIGN_ID&email=USER_EMAIL&to=REAL_URL`);
+  console.log(`🚫 수신거부: http://localhost:${PORT}/unsubscribe?email=USER_EMAIL`);
 });
 
 // Graceful shutdown
