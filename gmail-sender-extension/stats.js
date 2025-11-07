@@ -140,7 +140,7 @@ async function loadSendingStats() {
 
       // 현재까지 보낸 것
       const sent = sentEmails.length;
-      document.getElementById('sentCount').textContent = sent;
+      document.getElementById('sentCountLocal').textContent = sent;
 
       // 남은 것
       const remaining = total - sent;

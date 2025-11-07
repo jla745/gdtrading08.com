@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>이메일 통계 대시보드</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-card .icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card .label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-card .value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stat-card.sent { border-left: 5px solid #3498db; }
+    .stat-card.delivered { border-left: 5px solid #2ecc71; }
+    .stat-card.opened { border-left: 5px solid #f39c12; }
+    .stat-card.clicked { border-left: 5px solid #9b59b6; }
+    .stat-card.bounced { border-left: 5px solid #e74c3c; }
+    .stat-card.spam { border-left: 5px solid #e67e22; }
+
+    .chart-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .chart-section h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 24px;
+    }
+
+    .rate-bars {
+      margin-top: 30px;
+    }
+
+    .rate-bar {
+      margin-bottom: 25px;
+    }
+
+    .rate-bar .label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .rate-bar .bar-container {
+      width: 100%;
+      height: 30px;
+      background: #e0e0e0;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .rate-bar .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      transition: width 0.6s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 15px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .refresh-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      cursor: pointer;
+      font-size: 24px;
+      transition: all 0.3s;
+    }
+
+    .refresh-btn:hover {
+      transform: rotate(180deg) scale(1.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .loading {
+      text-align: center;
+      color: white;
+      font-size: 18px;
+      padding: 50px;
+    }
+
+    .error {
+      background: #e74c3c;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .timestamp {
+      text-align: center;
+      color: white;
+      margin-top: 20px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 이메일 통계 대시보드</h1>
+
+    <div id="loading" class="loading">데이터 로딩 중...</div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="statsContent" style="display: none;">
+      <div class="stats-grid">
+        <div class="stat-card sent">
+          <div class="icon">📤</div>
+          <div class="label">발송됨</div>
+          <div class="value" id="sentCount">0</div>
+        </div>
+
+        <div class="stat-card delivered">
+          <div class="icon">✅</div>
+          <div class="label">전달됨</div>
+          <div class="value" id="deliveredCount">0</div>
+        </div>
+
+        <div class="stat-card opened">
+          <div class="icon">📧</div>
+          <div class="label">오픈됨 (유니크)</div>
+          <div class="value" id="openedCount">0</div>
+        </div>
+
+        <div class="stat-card clicked">
+          <div class="icon">🔗</div>
+          <div class="label">클릭됨 (유니크)</div>
+          <div class="value" id="clickedCount">0</div>
+        </div>
+
+        <div class="stat-card bounced">
+          <div class="icon">❌</div>
+          <div class="label">반송됨</div>
+          <div class="value" id="bouncedCount">0</div>
+        </div>
+
+        <div class="stat-card spam">
+          <div class="icon">🚨</div>
+          <div class="label">스팸 신고</div>
+          <div class="value" id="spamCount">0</div>
+        </div>
+      </div>
+
+      <!-- 발송 상태 섹션 추가 -->
+      <div class="chart-section">
+        <h2>📨 실시간 발송 상태</h2>
+        <div class="stats-grid" style="margin-top: 20px;">
+          <div class="stat-card" style="border-left: 5px solid #3498db;">
+            <div class="icon">📥</div>
+            <div class="label">총 업로드</div>
+            <div class="value" id="totalCount">0</div>
+          </div>
+
+          <div class="stat-card" style="border-left: 5px solid #2ecc71;">
+            <div class="icon">✉️</div>
+            <div class="label">발송 완료</div>
+            <div class="value" id="sentCountLocal">0</div>
+          </div>
+
+          <div class="stat-card" style="border-left: 5px solid #f39c12;">
+            <div class="icon">⏳</div>
+            <div class="label">남은 수량</div>
+            <div class="value" id="remainingCount">0</div>
+          </div>
+
+          <div class="stat-card" style="border-left: 5px solid #e74c3c;">
+            <div class="icon">❌</div>
+            <div class="label">발송 실패</div>
+            <div class="value" id="failedCount">0</div>
+          </div>
+
+          <div class="stat-card" style="border-left: 5px solid #9b59b6;">
+            <div class="icon">📅</div>
+            <div class="label">오늘 발송</div>
+            <div class="value" id="todayCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <h2>주요 지표 비율</h2>
+        <div class="rate-bars">
+          <div class="rate-bar">
+            <div class="label">
+              <span>전달률 (Delivery Rate)</span>
+              <span id="deliveryRate">0%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-fill" id="deliveryBar" style="width: 0%;">0%</div>
+            </div>
+          </div>
+
+          <div class="rate-bar">
+            <div class="label">
+              <span>오픈율 (Open Rate)</span>
+              <span id="openRate">0%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-fill" id="openBar" style="width: 0%; background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);">0%</div>
+            </div>
+          </div>
+
+          <div class="rate-bar">
+            <div class="label">
+              <span>클릭률 (Click Rate)</span>
+              <span id="clickRate">0%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-fill" id="clickBar" style="width: 0%; background: linear-gradient(90deg, #9b59b6 0%, #8e44ad 100%);">0%</div>
+            </div>
+          </div>
+
+          <div class="rate-bar">
+            <div class="label">
+              <span>반송률 (Bounce Rate)</span>
+              <span id="bounceRate">0%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-fill" id="bounceBar" style="width: 0%; background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timestamp">
+        마지막 업데이트: <span id="lastUpdate">-</span>
+      </div>
+    </div>
+
+    <button class="refresh-btn" id="refreshBtn" title="새로고침">🔄</button>
+  </div>
+
+  <script src="stats.js"></script>
+</body>
+</html>
