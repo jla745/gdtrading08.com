@@ -541,33 +541,14 @@ app.post('/api/unsubscribe', async (req, res) => {
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6eWJyZ21jbG91c2tmdGlpZ2xnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjQ4MDUyNywiZXhwIjoyMDc4MDU2NTI3fQ.vWe3-_-QfbWmc8EiVgFo8sXNI3FVsJMSGTbwrEkWKMo';
 
   try {
-    // 1. 중복 체크
-    const checkResponse = await fetch(
-      `${SUPABASE_URL}/rest/v1/unsubscribed?email=eq.${encodeURIComponent(normalizedEmail)}&select=email`,
-      {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        }
-      }
-    );
-
-    const existing = await checkResponse.json();
-
-    if (existing.length > 0) {
-      console.log(`ℹ️ 이미 수신거부 목록에 있음: ${normalizedEmail}`);
-      return res.json({ success: true, message: '이미 수신거부 목록에 등록되어 있습니다.', duplicate: true });
-    }
-
-    // 2. Supabase에 추가
+    // UPSERT로 한 번에 처리 (중복 체크 + 추가를 동시에)
     const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/unsubscribed`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Prefer': 'resolution=merge-duplicates,return=representation'  // UPSERT 설정
       },
       body: JSON.stringify({
         email: normalizedEmail,
@@ -577,6 +558,13 @@ app.post('/api/unsubscribe', async (req, res) => {
 
     if (!insertResponse.ok) {
       const error = await insertResponse.json();
+
+      // 중복 오류 처리 (409 또는 unique constraint violation)
+      if (insertResponse.status === 409 || (error.code && error.code === '23505')) {
+        console.log(`ℹ️ 이미 수신거부 목록에 있음: ${normalizedEmail}`);
+        return res.json({ success: true, message: '이미 수신거부 목록에 등록되어 있습니다.', duplicate: true });
+      }
+
       console.error('❌ Supabase 추가 실패:', error);
       return res.status(500).json({ success: false, message: `저장 실패: ${error.message || insertResponse.statusText}` });
     }
