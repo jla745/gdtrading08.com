@@ -384,6 +384,12 @@ app.get('/api/stats/:campaign_id', (req, res) => {
 app.get('/unsubscribe', (req, res) => {
   const { email } = req.query;
 
+  // 빠른 응답을 위한 헤더 설정
+  res.set({
+    'Cache-Control': 'no-cache',
+    'Content-Type': 'text/html; charset=utf-8'
+  });
+
   if (!email) {
     return res.status(400).send(`
       <!DOCTYPE html>
@@ -407,123 +413,8 @@ app.get('/unsubscribe', (req, res) => {
     `);
   }
 
-  // 수신거부 확인 페이지 표시
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>수신거부</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          text-align: center;
-          padding: 50px 20px;
-          background: white;
-          color: #333;
-        }
-        .container {
-          max-width: 500px;
-          margin: 0 auto;
-          background: white;
-          padding: 40px;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-          border: 1px solid #e0e0e0;
-        }
-        h1 { color: #dc3545; margin-bottom: 20px; }
-        p { font-size: 16px; line-height: 1.6; margin-bottom: 30px; color: #666; }
-        .email { font-weight: bold; color: #333; background: #f8f9fa; padding: 10px; border-radius: 4px; display: inline-block; }
-        .btn {
-          display: inline-block;
-          padding: 12px 30px;
-          font-size: 16px;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          text-decoration: none;
-          margin: 5px;
-          transition: all 0.3s;
-        }
-        .btn-confirm {
-          background-color: #dc3545;
-          color: white;
-        }
-        .btn-confirm:hover {
-          background-color: #c82333;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
-        }
-        .btn-cancel {
-          background-color: #6c757d;
-          color: white;
-        }
-        .btn-cancel:hover {
-          background-color: #5a6268;
-        }
-        #result {
-          margin-top: 20px;
-          padding: 15px;
-          border-radius: 6px;
-          display: none;
-        }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>🚫 수신거부</h1>
-        <p>다음부터 더 이상 이메일을 받지 않으시겠습니까?</p>
-        <p style="margin-top: 30px;">확인 버튼을 클릭하시면 수신거부 목록에 추가됩니다.</p>
-
-        <button class="btn btn-confirm" onclick="confirmUnsubscribe()">✅ 수신거부 확인</button>
-        <button class="btn btn-cancel" onclick="window.close()">❌ 취소</button>
-
-        <div id="result"></div>
-      </div>
-
-      <script>
-        const email = "${email}";
-
-        async function confirmUnsubscribe() {
-          const resultDiv = document.getElementById('result');
-          resultDiv.style.display = 'block';
-          resultDiv.className = '';
-          resultDiv.textContent = '처리 중...';
-
-          try {
-            const response = await fetch('/api/unsubscribe', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: email })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              resultDiv.className = 'success';
-              resultDiv.textContent = '✅ ' + data.message;
-
-              // 3초 후 버튼 숨기기
-              setTimeout(() => {
-                document.querySelector('.btn-confirm').style.display = 'none';
-                document.querySelector('.btn-cancel').textContent = '닫기';
-              }, 3000);
-            } else {
-              resultDiv.className = 'error';
-              resultDiv.textContent = '❌ ' + data.message;
-            }
-          } catch (error) {
-            resultDiv.className = 'error';
-            resultDiv.textContent = '❌ 오류가 발생했습니다: ' + error.message;
-          }
-        }
-      </script>
-    </body>
-    </html>
-  `);
+  // 수신거부 확인 페이지 표시 (최소화된 HTML)
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>수신거부</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;text-align:center;padding:50px 20px;background:#fff}h1{color:#dc3545}.btn{padding:12px 30px;font-size:16px;border:none;border-radius:6px;cursor:pointer;margin:5px}.btn-c{background:#dc3545;color:#fff}.btn-x{background:#6c757d;color:#fff}#r{margin-top:20px;padding:15px;border-radius:6px;display:none}.s{background:#d4edda;color:#155724}.e{background:#f8d7da;color:#721c24}</style></head><body><h1>🚫 수신거부</h1><p>더 이상 이메일을 받지 않으시겠습니까?</p><button class="btn btn-c" onclick="c()">✅ 확인</button><button class="btn btn-x" onclick="window.close()">❌ 취소</button><div id="r"></div><script>async function c(){const r=document.getElementById('r');r.style.display='block';r.textContent='처리 중...';try{const res=await fetch('/api/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:"${email}"})});const d=await res.json();if(d.success){r.className='s';r.textContent='✅ 수신거부 완료';setTimeout(()=>{document.querySelector('.btn-c').style.display='none'},1000)}else{r.className='e';r.textContent='❌ '+d.message}}catch(e){r.className='e';r.textContent='❌ 오류: '+e.message}}</script></body></html>`);
 });
 
 // ⭐ 수신거부 처리 API (POST)
