@@ -407,8 +407,8 @@ app.get('/unsubscribe', (req, res) => {
   }
 
   // Vercel로 즉시 리다이렉트 (정적 호스팅, CDN 캐시)
-  // Vercel 배포 후 URL로 변경 필요 (예: your-project.vercel.app)
-  const vercelUrl = process.env.UNSUBSCRIBE_URL || `https://gmail-tracking.vercel.app/unsubscribe.html?email=${encodeURIComponent(email)}`;
+  // 실제 Vercel 배포 URL 사용
+  const vercelUrl = process.env.UNSUBSCRIBE_URL || `https://gmail-tracking-server.vercel.app/unsubscribe.html?email=${encodeURIComponent(email)}`;
 
   res.redirect(301, vercelUrl); // 301 영구 리다이렉트로 브라우저 캐시 활용
 });
