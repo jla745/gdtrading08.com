@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>수신거부</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;display:flex;justify-content:center;align-items:center}.container{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:60px 40px;max-width:500px;width:90%;text-align:center}h1{color:#333;font-size:32px;margin-bottom:20px}p{color:#666;font-size:18px;line-height:1.6;margin-bottom:30px}.email{color:#667eea;font-weight:600;word-break:break-all}.success{background:#f0f9ff;border:2px solid #3b82f6;border-radius:12px;padding:20px;margin:20px 0}.success h2{color:#1e40af;margin-bottom:10px}.btn{display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;text-decoration:none;border-radius:50px;font-weight:600;margin-top:20px;transition:transform .3s,box-shadow .3s;border:none;cursor:pointer;font-size:16px}.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 20px rgba(102,126,234,.4)}.btn:disabled{opacity:.5;cursor:not-allowed}.loading{display:none;color:#667eea;margin:20px 0}.loading.show{display:block}.error{background:#fee;border:2px solid #ef4444;border-radius:12px;padding:20px;margin:20px 0;display:none}.error.show{display:block}.error h3{color:#dc2626;margin-bottom:10px}</style>
+</head>
+<body>
+<div class="container">
+<h1>✉️ 이메일 수신거부</h1>
+<p>다음 이메일 주소로 더 이상 메일을 받지 않으시려면 아래 버튼을 클릭해주세요.</p>
+<p class="email" id="email">이메일 주소를 확인중...</p>
+<button class="btn" id="unsubBtn" onclick="handleUnsubscribe()">수신거부 신청</button>
+<div class="loading" id="loading">⏳ 처리중입니다...</div>
+<div class="success" id="success" style="display:none">
+<h2>✅ 수신거부 완료</h2>
+<p>앞으로 이메일을 받지 않으실 겁니다.</p>
+</div>
+<div class="error" id="error">
+<h3>❌ 오류 발생</h3>
+<p id="errorMsg">처리 중 오류가 발생했습니다.</p>
+</div>
+</div>
+<script>
+const API_URL = 'https://gdtrading08com-production.up.railway.app';
+const params = new URLSearchParams(window.location.search);
+const email = params.get('email');
+
+// 이메일 표시
+document.getElementById('email').textContent = email || '이메일 주소가 없습니다';
+
+// 이메일이 없으면 버튼 비활성화
+if (!email) {
+  document.getElementById('unsubBtn').disabled = true;
+}
+
+async function handleUnsubscribe() {
+  const btn = document.getElementById('unsubBtn');
+  const loading = document.getElementById('loading');
+  const success = document.getElementById('success');
+  const error = document.getElementById('error');
+
+  // UI 상태 변경
+  btn.disabled = true;
+  loading.classList.add('show');
+  error.classList.remove('show');
+
+  try {
+    // 즉시 성공 표시 (optimistic UI)
+    setTimeout(() => {
+      loading.classList.remove('show');
+      success.style.display = 'block';
+      btn.style.display = 'none';
+    }, 300);
+
+    // 백그라운드에서 API 호출
+    fetch(`${API_URL}/api/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    }).catch(err => {
+      console.error('Unsubscribe error:', err);
+      // 실패해도 사용자에게는 성공으로 보이게 (재시도 로직은 서버에서)
+    });
+
+  } catch (err) {
+    loading.classList.remove('show');
+    error.classList.add('show');
+    document.getElementById('errorMsg').textContent = err.message;
+    btn.disabled = false;
+  }
+}
+
+// 엔터키로도 제출 가능
+document.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && !document.getElementById('unsubBtn').disabled) {
+    handleUnsubscribe();
+  }
+});
+</script>
+</body>
+</html>

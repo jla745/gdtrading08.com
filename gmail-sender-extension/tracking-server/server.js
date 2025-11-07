@@ -62,6 +62,15 @@ const TRACKING_PIXEL = Buffer.from(
 );
 
 // 트래킹 픽셀 엔드포인트
+// Health check 엔드포인트 (keep-alive용)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 app.get('/track.png', (req, res) => {
   const { id, email } = req.query;
 
@@ -389,19 +398,19 @@ const UNSUBSCRIBE_HTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><titl
 
 const ERROR_HTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>오류</title></head><body style="text-align:center;padding:50px;font-family:Arial"><h1>❌ 이메일 주소가 필요합니다</h1></body></html>`;
 
-// ⭐ 수신거부 페이지 (GET) - 최적화됨
+// ⭐ 수신거부 페이지 (GET) - GitHub Pages로 리다이렉트 (CDN 효과)
 app.get('/unsubscribe', (req, res) => {
-  // 즉시 응답
-  res.set({
-    'Content-Type': 'text/html; charset=utf-8',
-    'Cache-Control': 'public, max-age=3600' // 1시간 캐시
-  });
+  const email = req.query.email;
 
-  if (!req.query.email) {
+  if (!email) {
     return res.status(400).send(ERROR_HTML);
   }
 
-  res.send(UNSUBSCRIBE_HTML);
+  // GitHub Pages로 즉시 리다이렉트 (정적 호스팅, CDN 캐시)
+  // jla745.github.io/gmail-tracking-server/website/unsubscribe.html
+  const githubPagesUrl = `https://jla745.github.io/gmail-tracking-server/website/unsubscribe.html?email=${encodeURIComponent(email)}`;
+
+  res.redirect(301, githubPagesUrl); // 301 영구 리다이렉트로 브라우저 캐시 활용
 });
 
 // ⭐ 수신거부 처리 API (POST) - 최적화
@@ -455,6 +464,18 @@ app.listen(PORT, () => {
   console.log(`📊 픽셀 트래킹: http://localhost:${PORT}/track.png?id=CAMPAIGN_ID&email=USER_EMAIL`);
   console.log(`🔗 링크 트래킹: http://localhost:${PORT}/redirect?id=CAMPAIGN_ID&email=USER_EMAIL&to=REAL_URL`);
   console.log(`🚫 수신거부: http://localhost:${PORT}/unsubscribe?email=USER_EMAIL`);
+  console.log(`🔄 Keep-alive 활성화: 5분마다 자체 핑`);
+
+  // Keep-alive: Railway가 sleep 모드로 가지 않도록 5분마다 자체 핑
+  setInterval(() => {
+    const serverUrl = process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/health`
+      : `http://localhost:${PORT}/health`;
+
+    fetch(serverUrl)
+      .then(() => console.log(`✅ Keep-alive 핑: ${new Date().toISOString()}`))
+      .catch(err => console.error('Keep-alive 실패:', err));
+  }, 5 * 60 * 1000); // 5분마다
 });
 
 // Graceful shutdown
