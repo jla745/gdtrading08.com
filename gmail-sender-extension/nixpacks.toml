@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["nodejs", "python3", "gcc"]
-
-[phases.install]
-cmds = ["cd gmail-sender-extension/tracking-server && npm install"]
-
-[start]
-cmd = "cd gmail-sender-extension/tracking-server && node server.js"
