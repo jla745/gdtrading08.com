@@ -398,19 +398,113 @@ const UNSUBSCRIBE_HTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><titl
 
 const ERROR_HTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>오류</title></head><body style="text-align:center;padding:50px;font-family:Arial"><h1>❌ 이메일 주소가 필요합니다</h1></body></html>`;
 
-// ⭐ 수신거부 페이지 (GET) - GitHub Pages로 리다이렉트 (CDN 효과)
+// ⭐ 수신거부 페이지 (GET) - Railway에서 직접 서빙
 app.get('/unsubscribe', (req, res) => {
   const email = req.query.email;
+  const normalizedEmail = email?.toLowerCase()?.trim();
 
   if (!email) {
     return res.status(400).send(ERROR_HTML);
   }
 
-  // Vercel로 즉시 리다이렉트 (정적 호스팅, CDN 캐시)
-  // 실제 Vercel 배포 URL 사용
-  const vercelUrl = process.env.UNSUBSCRIBE_URL || `https://gmail-tracking-server.vercel.app/unsubscribe.html?email=${encodeURIComponent(email)}`;
+  // 캐시 헤더 설정으로 반복 방문 시 속도 개선
+  res.setHeader('Cache-Control', 'public, max-age=3600'); // 1시간 캐시
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-  res.redirect(301, vercelUrl); // 301 영구 리다이렉트로 브라우저 캐시 활용
+  // 최소화된 HTML로 빠른 응답
+  const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>수신거부</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.container{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);padding:40px;max-width:500px;width:100%;text-align:center}.icon{width:80px;height:80px;background:#f39c12;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:40px}h1{color:#333;margin-bottom:10px;font-size:28px}p{color:#666;line-height:1.6;margin-bottom:20px}.email{background:#f5f5f5;padding:10px 20px;border-radius:8px;display:inline-block;margin:10px 0;font-weight:500;color:#333}.btn{background:#e74c3c;color:#fff;border:none;padding:15px 40px;font-size:16px;border-radius:8px;cursor:pointer;margin-top:20px;transition:all .3s}.btn:hover{background:#c0392b;transform:translateY(-2px)}.loading{display:none;margin-top:20px}.loading.show{display:block}.success{display:none;margin-top:20px;color:#27ae60;font-weight:500}</style>
+</head>
+<body>
+<div class="container">
+<div class="icon">📧</div>
+<h1>수신거부 확인</h1>
+<p>아래 이메일 주소의 수신을 거부하시겠습니까?</p>
+<div class="email">${normalizedEmail || '이메일 없음'}</div>
+<button class="btn" onclick="unsubscribe()">수신거부</button>
+<div class="loading">처리 중...</div>
+<div class="success">✅ 수신거부가 완료되었습니다</div>
+</div>
+<script>
+async function unsubscribe(){
+const btn=document.querySelector('.btn');
+const loading=document.querySelector('.loading');
+const success=document.querySelector('.success');
+btn.style.display='none';
+loading.classList.add('show');
+try{
+const response=await fetch('/api/unsubscribe',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({email:'${normalizedEmail}'})
+});
+loading.classList.remove('show');
+success.style.display='block';
+}catch(err){
+loading.classList.remove('show');
+alert('처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+btn.style.display='inline-block';
+}
+}
+</script>
+</body>
+</html>`;
+
+  res.send(html);
+});
+
+// ⭐ 수신거부 목록 조회 API (GET)
+app.get('/api/unsubscribed', async (req, res) => {
+  const { email } = req.query;
+
+  // 환경 변수에서 가져오기 (Railway에 설정 필요)
+  const SUPABASE_URL = process.env.SUPABASE_URL || 'https://gzybrgmclouskftiiglg.supabase.co';
+  const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+  if (!SUPABASE_ANON_KEY) {
+    console.error('⚠️ SUPABASE_ANON_KEY 환경 변수가 설정되지 않았습니다');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  try {
+    let url = `${SUPABASE_URL}/rest/v1/unsubscribed?select=email`;
+
+    // 특정 이메일 확인
+    if (email) {
+      url += `&email=eq.${encodeURIComponent(email.toLowerCase().trim())}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // 특정 이메일 확인 시
+    if (email) {
+      return res.json({ exists: data.length > 0 });
+    }
+
+    // 전체 목록 반환
+    return res.json(data);
+
+  } catch (error) {
+    console.error('❌ 수신거부 목록 조회 오류:', error);
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // ⭐ 수신거부 처리 API (POST) - 최적화
@@ -466,22 +560,30 @@ app.post('/api/unsubscribe', async (req, res) => {
 
 // 서버 시작
 app.listen(PORT, () => {
-  console.log(`🚀 트래킹 서버 실행 중: http://localhost:${PORT}`);
+  console.log(`🚀 트래킹 서버 실행 중 (v1.0.6): http://localhost:${PORT}`);
   console.log(`📊 픽셀 트래킹: http://localhost:${PORT}/track.png?id=CAMPAIGN_ID&email=USER_EMAIL`);
   console.log(`🔗 링크 트래킹: http://localhost:${PORT}/redirect?id=CAMPAIGN_ID&email=USER_EMAIL&to=REAL_URL`);
   console.log(`🚫 수신거부: http://localhost:${PORT}/unsubscribe?email=USER_EMAIL`);
-  console.log(`🔄 Keep-alive 활성화: 5분마다 자체 핑`);
+  console.log(`🔄 Keep-alive 활성화: 3분마다 자체 핑 (서버 warm 상태 유지)`);
 
-  // Keep-alive: Railway가 sleep 모드로 가지 않도록 5분마다 자체 핑
+  // 서버 시작 직후 첫 핑 보내기 (서버 즉시 warm up)
+  const serverUrl = process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/health`
+    : `http://localhost:${PORT}/health`;
+
+  // 3초 후 첫 핑 (서버 완전히 시작된 후)
+  setTimeout(() => {
+    fetch(serverUrl)
+      .then(() => console.log(`🔥 서버 warm-up 핑: ${new Date().toISOString()}`))
+      .catch(err => console.error('Warm-up 실패:', err));
+  }, 3000);
+
+  // Keep-alive: Railway가 sleep 모드로 가지 않도록 3분마다 자체 핑 (더 자주)
   setInterval(() => {
-    const serverUrl = process.env.RAILWAY_PUBLIC_DOMAIN
-      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/health`
-      : `http://localhost:${PORT}/health`;
-
     fetch(serverUrl)
       .then(() => console.log(`✅ Keep-alive 핑: ${new Date().toISOString()}`))
       .catch(err => console.error('Keep-alive 실패:', err));
-  }, 5 * 60 * 1000); // 5분마다
+  }, 3 * 60 * 1000); // 3분마다 (더 자주 핑을 보내서 서버가 항상 warm 상태 유지)
 });
 
 // Graceful shutdown
