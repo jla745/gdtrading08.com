@@ -1141,14 +1141,19 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* korea1-map, korea2-map roughmap 높이 100% 강제 적용 */
-        #korea1-map,
-        #korea2-map {
+        /* korea1-map, korea2-map 높이 100% 강제 적용 (display는 JS에서 제어) */
+        #korea1-map[style*="block"],
+        #korea2-map[style*="block"] {
             display: flex !important;
             flex-direction: column !important;
         }
 
-        #korea1-map .root_daum_roughmap,
+        #korea1-map #korea1-map-container {
+            flex: 1 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         #korea2-map .root_daum_roughmap {
             flex: 1 !important;
             width: 100% !important;
@@ -1156,14 +1161,12 @@
             min-height: 100% !important;
         }
 
-        #korea1-map .root_daum_roughmap .wrap_map,
         #korea2-map .root_daum_roughmap .wrap_map {
             width: 100% !important;
             height: 100% !important;
             min-height: 100% !important;
         }
 
-        #korea1-map .root_daum_roughmap .wrap_map .map,
         #korea2-map .root_daum_roughmap .wrap_map .map {
             width: 100% !important;
             height: 100% !important;
