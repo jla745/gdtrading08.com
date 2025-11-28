@@ -1723,7 +1723,7 @@
                     </div>
 
                     <!-- YouTube Shorts Video (Lazy loaded via Intersection Observer) -->
-                    <div class="video-wrapper" id="video-wrapper">
+                    <div class="video-wrapper" id="video-wrapper" style="display: none;">
                         <iframe
                             id="youtube-iframe"
                             class="youtube-iframe"
@@ -2166,8 +2166,8 @@
                     if ('IntersectionObserver' in window) {
                         const options = {
                             root: null,
-                            rootMargin: '100px', // Start loading 100px before visible
-                            threshold: 0.1
+                            rootMargin: '500px', // Start loading 500px before visible (earlier preload)
+                            threshold: 0.01
                         };
 
                         const observer = new IntersectionObserver((entries) => {
@@ -2196,12 +2196,20 @@
 
                     console.log('🎥 Starting YouTube video load');
 
+                    // Show video wrapper and hide placeholder immediately
+                    if (this.videoWrapper) {
+                        this.videoWrapper.style.display = 'block';
+                    }
+
+                    // Hide placeholder immediately (don't wait for iframe load)
+                    if (this.placeholder) {
+                        this.placeholder.style.display = 'none';
+                    }
+
                     // Load iframe with actual src (includes autoplay=1&mute=1)
                     if (this.iframe && this.iframe.dataset.src) {
                         this.iframe.src = this.iframe.dataset.src;
-                        this.iframe.addEventListener('load', () => this.onIframeLoad());
-                        this.iframe.addEventListener('error', (e) => this.onIframeError(e));
-                        this.startLoadingTimer();
+                        // No need to wait for load event - video will appear when ready
                     }
                 }
 
