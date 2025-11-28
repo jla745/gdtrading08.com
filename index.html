@@ -2901,8 +2901,54 @@
                     }
                 }
 
+                // 폴백 콘텐츠가 있는지 확인 (링크 버튼이 있으면 폴백 상태)
+                const hasFallbackContent = this.mapContainer.querySelector('a[href*="map.kakao.com"]');
+                if (hasFallbackContent) {
+                    console.log('🔄 KakaoMap: 폴백 상태 감지, 지도 다시 로드...');
+                    // 폴백 콘텐츠 제거하고 원래 구조 복원
+                    this.restoreOriginalStructure();
+                }
+
                 // 지도가 없거나 잘못된 상태면 새로 로드
                 this.loadMap();
+            }
+
+            // 원래 지도 구조 복원
+            restoreOriginalStructure() {
+                if (!this.mapContainer) return;
+
+                // 기존 내용 비우고 원래 구조 복원
+                this.mapContainer.innerHTML = `
+                    <!-- 로딩 상태 -->
+                    <div class="map-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>지도를 불러오는 중입니다...</p>
+                    </div>
+
+                    <!-- 에러 상태 -->
+                    <div class="map-error" style="display: none;">
+                        <div class="error-icon">⚠️</div>
+                        <p>지도 로딩에 실패했습니다</p>
+                        <button onclick="window.kakaoMapLoader.loadMap()" class="retry-button">다시 시도</button>
+                    </div>
+
+                    <!-- 폴백 콘텐츠 -->
+                    <div class="map-fallback" style="display: none;">
+                        <a href="https://map.kakao.com/?urlX=573831&urlY=1058473&urlLevel=2&map_type=TYPE_SKYVIEW&map_hybrid=true"
+                           target="_blank" rel="noopener noreferrer"
+                           class="static-map-link">
+                            <img src="https://staticmap.kakao.com/map/skyviewmapservice?FORMAT=PNG&RDR=HybridRender&SCALE=1.25&MX=573830&MY=1058474&S=0&IW=640&IH=360&LANG=0&COORDSTM=WCONGNAMUL&logo=kakao_logo"
+                                 alt="GD TRADE 본사 위치 (카카오맵 하이브리드 뷰)"
+                                 class="static-map-image">
+                        </a>
+                        <div class="location-info">
+                            <h3>GD TRADE 본사</h3>
+                            <p>📍 경기도 광주시 도척면 도척로 489</p>
+                            <p><small>이미지를 클릭하면 카카오맵에서 자세히 볼 수 있습니다</small></p>
+                        </div>
+                    </div>
+                `;
+                console.log('✅ KakaoMap: 원래 구조 복원 완료');
             }
         }
 
