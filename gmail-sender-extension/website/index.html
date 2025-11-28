@@ -1630,11 +1630,11 @@
                         <iframe
                             id="youtube-iframe"
                             class="youtube-iframe"
-                            src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&autoplay=1&mute=1&loop=1&playlist=_MxIiCA3cRs&origin=http://localhost:8000&widget_referrer=http://localhost:8000"
+                            src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&loop=1&playlist=_MxIiCA3cRs"
                             title="GD TRADE 소개 동영상 (YouTube Shorts)"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen
-                            loading="eager">
+                            loading="lazy">
                         </iframe>
 
                       </div>
@@ -2053,8 +2053,8 @@
 
                 onIframeLoad() {
                     console.log('🎥 YouTube iframe loaded successfully');
-                    // Hide loading after delay to ensure content is ready
-                    setTimeout(() => this.hideLoading(), 3000);
+                    // Hide loading immediately for better performance
+                    this.hideLoading();
                 }
 
                 onIframeError(error) {
@@ -2068,7 +2068,7 @@
                             console.warn('🎥 YouTube loading timeout, showing fallback');
                             this.showFallback();
                         }
-                    }, 10000); // 10 second timeout
+                    }, 5000); // 5 second timeout (reduced from 10s for better UX)
                 }
 
                 hideLoading() {
