@@ -2485,10 +2485,12 @@
                 this.loadingTimeout = null;
                 this.retryCount = 0;
                 this.maxRetries = 3;
+                this.mapCreatedSuccessfully = false;
                 this.init();
             }
 
             init() {
+                this.mapCreatedSuccessfully = false;
                 this.mapContainer = document.getElementById('korea1-map');
                 if (!this.mapContainer) {
                     console.error('❌ KakaoMap: 지도 컨테이너를 찾을 수 없습니다');
@@ -2636,7 +2638,8 @@
                         // 지도를 생성합니다
                         const map = new kakao.maps.Map(mapContainer, mapOption);
 
-                        // 지도 생성 성공 - 타임아웃 취소
+                        // 지도 생성 성공 - 타임아웃 취소 및 플래그 설정
+                        this.mapCreatedSuccessfully = true;
                         clearTimeout(this.loadingTimeout);
                         console.log('✅ KakaoMap: 지도 객체 생성 완료');
 
@@ -2762,6 +2765,11 @@
             }
 
             handleTimeout() {
+                // 이미 지도가 성공적으로 생성되었으면 타임아웃 무시
+                if (this.mapCreatedSuccessfully) {
+                    console.log('✅ KakaoMap: 지도가 이미 생성됨, 타임아웃 무시');
+                    return;
+                }
                 console.log('⏰ KakaoMap: 타임아웃 발생, 대안으로 전환');
                 this.showFallbackStaticMap();
             }
@@ -2881,6 +2889,7 @@
             // 지도 재초기화 메서드 (탭 전환 시 사용)
             reinitializeMap() {
                 console.log('🔄 KakaoMap: 재초기화 시작...');
+                this.mapCreatedSuccessfully = false;
                 this.mapContainer = document.getElementById('korea1-map');
                 if (!this.mapContainer) {
                     console.error('❌ KakaoMap: 지도 컨테이너를 찾을 수 없습니다');
