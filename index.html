@@ -1923,10 +1923,11 @@
 
             <div class="map-section" data-aos="fade-left">
                 <div class="map-tabs">
-                    <div class="map-tab active" onclick="showMap('korea')">한국 주소</div>
+                    <div class="map-tab active" onclick="showMap('korea1')">한국 1창고</div>
+                    <div class="map-tab" onclick="showMap('korea2')">한국 2창고</div>
                     <div class="map-tab" onclick="showMap('china')">중국 창고</div>
                 </div>
-                <div id="korea-map" class="map-container">
+                <div id="korea1-map" class="map-container">
                     <!-- 로딩 상태 -->
                     <div class="map-loading" style="display: none;">
                         <div class="loading-spinner"></div>
@@ -1956,12 +1957,27 @@
                         </div>
                     </div>
                 </div>
+                <div id="korea2-map" class="map-container" style="display: none;">
+                    <div style="text-align: center; padding: 20px; background: #f9f9f9; border-radius: 12px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <a href="https://map.kakao.com/?q=경기도 광주시 도척면 도척로 401-65"
+                           target="_blank" rel="noopener noreferrer" style="display: block;">
+                            <img src="https://staticmap.kakao.com/map/skyviewmapservice?FORMAT=PNG&RDR=HybridRender&SCALE=1.25&MX=557300&MY=1050500&S=0&IW=640&IH=360&LANG=0&COORDSTM=WCONGNAMUL&logo=kakao_logo"
+                                 alt="GD TRADE 한국 2창고 위치"
+                                 style="width: 100%; max-width: 640px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        </a>
+                        <div style="margin-top: 15px; text-align: center;">
+                            <h3 style="color: #333; margin-bottom: 8px;">GD TRADE 한국 2창고</h3>
+                            <p style="color: #666;">📍 경기도 광주시 도척면 도척로 401-65</p>
+                            <p style="color: #999; font-size: 12px;">이미지를 클릭하면 카카오맵에서 자세히 볼 수 있습니다</p>
+                        </div>
+                    </div>
+                </div>
                 <div id="china-map" class="map-container" style="display: none;">
                     <iframe class="map-iframe" src="https://j.map.baidu.com/59/qTZk" allowfullscreen="" loading="lazy"></iframe>
                 </div>
                 <div class="map-address">
-                    <strong id="map-label">한국 주소:</strong>
-                    <span id="korea-address">경기도 광주시 도척면 도척로 489 (GD TRADE)</span>
+                    <strong id="map-label">한국 1창고:</strong>
+                    <span id="map-address-text">경기도 광주시 도척면 도척로 489 (GD TRADE)</span>
                 </div>
             </div>
         </div>
@@ -2116,9 +2132,9 @@
             setTimeout(() => {
                 console.log('🚀 카카오맵 직접 초기화 시작...');
 
-                const mapContainer = document.getElementById('korea-map');
+                const mapContainer = document.getElementById('korea1-map');
                 if (!mapContainer) {
-                    console.error('❌ korea-map 컨테이너를 찾을 수 없습니다');
+                    console.error('❌ korea1-map 컨테이너를 찾을 수 없습니다');
                     return;
                 }
 
@@ -2219,37 +2235,44 @@
             })();
 
             // Enhanced Map functionality with Geocoding
-            window.showMap = async function (location) {
-                const koreaMap = document.getElementById('korea-map');
+            window.showMap = function (location) {
+                const korea1Map = document.getElementById('korea1-map');
+                const korea2Map = document.getElementById('korea2-map');
                 const chinaMap = document.getElementById('china-map');
                 const addressLabel = document.getElementById('map-label');
-                const address = document.getElementById('korea-address');
+                const addressText = document.getElementById('map-address-text');
                 const tabs = document.querySelectorAll('.map-tab');
 
                 if (tabs) {
                     tabs.forEach(tab => tab.classList.remove('active'));
 
-                    if (location === 'korea' && koreaMap) {
-                        koreaMap.style.display = 'block';
-                        if (chinaMap) chinaMap.style.display = 'none';
-                        if (addressLabel) addressLabel.textContent = '한국 주소:';
-                        if (address) address.textContent = '경기도 광주시 도척면 도척로 489 (GD TRADE)';
+                    // 모든 지도 숨기기
+                    if (korea1Map) korea1Map.style.display = 'none';
+                    if (korea2Map) korea2Map.style.display = 'none';
+                    if (chinaMap) chinaMap.style.display = 'none';
+
+                    if (location === 'korea1' && korea1Map) {
+                        korea1Map.style.display = 'block';
+                        if (addressLabel) addressLabel.textContent = '한국 1창고:';
+                        if (addressText) addressText.textContent = '경기도 광주시 도척면 도척로 489 (GD TRADE)';
                         if (tabs[0]) tabs[0].classList.add('active');
 
-                        // 한국 주소로 정확한 지도 표시
+                        // 한국 1창고 지도 표시
                         if (window.kakaoMapLoader) {
                             window.kakaoMapLoader.loadMap();
                         }
 
-                    } else if (location === 'china' && chinaMap) {
-                        if (koreaMap) koreaMap.style.display = 'none';
-                        chinaMap.style.display = 'block';
-                        if (addressLabel) addressLabel.textContent = '중국 창고:';
-                        if (address) address.textContent = '广东省深圳市宝安区松岗街道仓库园区';
+                    } else if (location === 'korea2' && korea2Map) {
+                        korea2Map.style.display = 'block';
+                        if (addressLabel) addressLabel.textContent = '한국 2창고:';
+                        if (addressText) addressText.textContent = '경기도 광주시 도척면 도척로 401-65';
                         if (tabs[1]) tabs[1].classList.add('active');
 
-                        // 중국 지도는 바이두 지도로 고정 사용
-                        // await updateMapWithAddress('china-map', '广东省深圳市宝安区松岗街道仓库园区', 'zh-CN');
+                    } else if (location === 'china' && chinaMap) {
+                        chinaMap.style.display = 'block';
+                        if (addressLabel) addressLabel.textContent = '중국 창고:';
+                        if (addressText) addressText.textContent = '广东省深圳市宝安区松岗街道仓库园区';
+                        if (tabs[2]) tabs[2].classList.add('active');
                     }
                 }
             };
@@ -2260,7 +2283,7 @@
             // 카카오맵 지도 퍼가기 적용 함수 (수정 버전)
             function loadKakaoMapFallback(address) {
                 console.log('🔄 카카오맵 지도 퍼가기로 전환 - 주소:', address);
-                const mapContainer = document.getElementById('korea-map');
+                const mapContainer = document.getElementById('korea1-map');
                 if (!mapContainer) return;
 
                 // 사이트에 맞는 사이즈로 조정된 카카오맵 지도 퍼가기
@@ -2413,7 +2436,7 @@
             }
 
             init() {
-                this.mapContainer = document.getElementById('korea-map');
+                this.mapContainer = document.getElementById('korea1-map');
                 if (!this.mapContainer) {
                     console.error('❌ KakaoMap: 지도 컨테이너를 찾을 수 없습니다');
                     return;
@@ -2744,7 +2767,7 @@
             }
 
             handleResize() {
-                const mapContainer = document.getElementById('korea-map');
+                const mapContainer = document.getElementById('korea1-map');
                 if (!mapContainer) return;
 
                 // 카카오맵 iframe 크기 조정
@@ -2806,7 +2829,7 @@
         // 전역 초기화
         document.addEventListener('DOMContentLoaded', () => {
             // KakaoMap Loader 초기화
-            if (document.getElementById('korea-map')) {
+            if (document.getElementById('korea1-map')) {
                 // Kakao Maps SDK가 완전히 로드될 때까지 대기
                 setTimeout(() => {
                     window.kakaoMapLoader = new KakaoMapLoader();
