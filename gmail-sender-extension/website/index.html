@@ -2019,10 +2019,12 @@
 
             <div class="map-section" data-aos="fade-left">
                 <div class="map-tabs">
-                    <div class="map-tab active" onclick="showMap('korea')">한국 주소</div>
-                    <div class="map-tab" onclick="showMap('china')">중국 창고</div>
+                    <div class="map-tab active" onclick="window.showMap('korea1')">한국 1창고</div>
+                    <div class="map-tab" onclick="window.showMap('korea2')">한국 2창고</div>
+                    <div class="map-tab" onclick="window.showMap('china')">중국 창고</div>
                 </div>
-                <div id="korea-map" class="map-container">
+                <!-- 한국 1창고 지도 -->
+                <div id="korea1-map" class="map-container">
                     <!-- 로딩 상태 -->
                     <div class="map-loading" style="display: none;">
                         <div class="loading-spinner"></div>
@@ -2042,22 +2044,27 @@
                            target="_blank" rel="noopener noreferrer"
                            class="static-map-link">
                             <img src="https://staticmap.kakao.com/map/skyviewmapservice?FORMAT=PNG&RDR=HybridRender&SCALE=1.25&MX=573830&MY=1058474&S=0&IW=640&IH=360&LANG=0&COORDSTM=WCONGNAMUL&logo=kakao_logo"
-                                 alt="GD TRADE 본사 위치 (카카오맵 하이브리드 뷰)"
+                                 alt="GD TRADE 한국 1창고 위치 (카카오맵 하이브리드 뷰)"
                                  class="static-map-image">
                         </a>
                         <div class="location-info">
-                            <h3>GD TRADE 본사</h3>
+                            <h3>GD TRADE 한국 1창고</h3>
                             <p>📍 경기도 광주시 도척면 도척로 489</p>
                             <p><small>이미지를 클릭하면 카카오맵에서 자세히 볼 수 있습니다</small></p>
                         </div>
                     </div>
                 </div>
+                <!-- 한국 2창고 지도 -->
+                <div id="korea2-map" class="map-container" style="display: none;">
+                    <!-- Daum Roughmap으로 로드됨 -->
+                </div>
+                <!-- 중국 창고 지도 -->
                 <div id="china-map" class="map-container" style="display: none;">
                     <iframe class="map-iframe" src="https://j.map.baidu.com/59/qTZk" allowfullscreen="" loading="lazy"></iframe>
                 </div>
                 <div class="map-address">
-                    <strong id="map-label">한국 주소:</strong>
-                    <span id="korea-address">경기도 광주시 도척면 도척로 489 (GD TRADE)</span>
+                    <strong id="map-label">한국 1창고:</strong>
+                    <span id="map-address-text">경기도 광주시 도척면 도척로 489 (GD TRADE)</span>
                 </div>
             </div>
         </div>
@@ -2252,9 +2259,9 @@
             setTimeout(() => {
                 console.log('🚀 카카오맵 직접 초기화 시작...');
 
-                const mapContainer = document.getElementById('korea-map');
+                const mapContainer = document.getElementById('korea1-map');
                 if (!mapContainer) {
-                    console.error('❌ korea-map 컨테이너를 찾을 수 없습니다');
+                    console.error('❌ korea1-map 컨테이너를 찾을 수 없습니다');
                     return;
                 }
 
@@ -2354,40 +2361,124 @@
                 }
             })();
 
-            // Enhanced Map functionality with Geocoding
+            // Enhanced Map functionality with Geocoding - 3 warehouses support
             window.showMap = async function (location) {
-                const koreaMap = document.getElementById('korea-map');
+                const korea1Map = document.getElementById('korea1-map');
+                const korea2Map = document.getElementById('korea2-map');
                 const chinaMap = document.getElementById('china-map');
                 const addressLabel = document.getElementById('map-label');
-                const address = document.getElementById('korea-address');
+                const address = document.getElementById('map-address-text');
                 const tabs = document.querySelectorAll('.map-tab');
 
+                // 모든 지도 숨기기
+                if (korea1Map) korea1Map.style.display = 'none';
+                if (korea2Map) korea2Map.style.display = 'none';
+                if (chinaMap) chinaMap.style.display = 'none';
+
+                // 모든 탭 비활성화
                 if (tabs) {
                     tabs.forEach(tab => tab.classList.remove('active'));
-
-                    if (location === 'korea' && koreaMap) {
-                        koreaMap.style.display = 'block';
-                        if (chinaMap) chinaMap.style.display = 'none';
-                        if (addressLabel) addressLabel.textContent = '한국 주소:';
-                        if (address) address.textContent = '경기도 광주시 도척면 도척로 489 (GD TRADE)';
-                        if (tabs[0]) tabs[0].classList.add('active');
-
-                        // 한국 주소로 정확한 지도 표시
-                        if (window.kakaoMapLoader) {
-                            window.kakaoMapLoader.loadMap();
-                        }
-
-                    } else if (location === 'china' && chinaMap) {
-                        if (koreaMap) koreaMap.style.display = 'none';
-                        chinaMap.style.display = 'block';
-                        if (addressLabel) addressLabel.textContent = '중국 창고:';
-                        if (address) address.textContent = '广东省深圳市宝安区松岗街道仓库园区';
-                        if (tabs[1]) tabs[1].classList.add('active');
-
-                        // 중국 지도는 바이두 지도로 고정 사용
-                        // await updateMapWithAddress('china-map', '广东省深圳市宝安区松岗街道仓库园区', 'zh-CN');
-                    }
                 }
+
+                if (location === 'korea1') {
+                    if (korea1Map) korea1Map.style.display = 'block';
+                    if (addressLabel) addressLabel.textContent = '한국 1창고:';
+                    if (address) address.textContent = '경기도 광주시 도척면 도척로 489 (GD TRADE)';
+                    if (tabs[0]) tabs[0].classList.add('active');
+
+                    // 한국 1창고 지도 초기화
+                    if (window.initKorea1Map) {
+                        window.initKorea1Map();
+                    } else if (window.kakaoMapLoader) {
+                        window.kakaoMapLoader.loadMap();
+                    }
+
+                } else if (location === 'korea2') {
+                    if (korea2Map) korea2Map.style.display = 'block';
+                    if (addressLabel) addressLabel.textContent = '한국 2창고:';
+                    if (address) address.textContent = '경기도 광주시 도척면 도척로 401-65';
+                    if (tabs[1]) tabs[1].classList.add('active');
+
+                    // 한국 2창고 지도 초기화 (Daum Roughmap)
+                    if (window.initKorea2Map) {
+                        window.initKorea2Map();
+                    }
+
+                } else if (location === 'china') {
+                    if (chinaMap) chinaMap.style.display = 'block';
+                    if (addressLabel) addressLabel.textContent = '중국 창고:';
+                    if (address) address.textContent = '广东省深圳市宝安区松岗街道仓库园区';
+                    if (tabs[2]) tabs[2].classList.add('active');
+                }
+            };
+
+            // 한국 1창고 지도 초기화 (Kakao Maps SDK)
+            window.initKorea1Map = function() {
+                console.log('🗺️ 한국 1창고 지도 초기화');
+                if (window.kakaoMapLoader) {
+                    window.kakaoMapLoader.loadMap();
+                }
+            };
+
+            // 한국 2창고 지도 초기화 (Daum Roughmap)
+            window.korea2MapInitialized = false;
+            window.initKorea2Map = function() {
+                if (window.korea2MapInitialized) {
+                    console.log('🗺️ 한국 2창고 지도 이미 초기화됨');
+                    return;
+                }
+
+                console.log('🗺️ 한국 2창고 지도 초기화 (Roughmap)');
+                const container = document.getElementById('korea2-map');
+                if (!container) return;
+
+                // Daum Roughmap 스크립트 로드
+                const script = document.createElement('script');
+                script.src = '//ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js';
+                script.charset = 'UTF-8';
+                script.onload = function() {
+                    // Roughmap 컨테이너 생성
+                    container.innerHTML = `
+                        <div id="daumRoughmapContainer1764306480215"
+                             class="root_daum_roughmap root_daum_roughmap_landing"
+                             style="width: 100%; height: 100%;">
+                        </div>
+                    `;
+
+                    // Roughmap 초기화 재시도 로직
+                    let retryCount = 0;
+                    const maxRetries = 10;
+
+                    function tryInitRoughmap() {
+                        if (typeof new window.daum.roughmap.Lander === 'function') {
+                            new window.daum.roughmap.Lander({
+                                "timestamp": "1764306480215",
+                                "key": "cxorr5mwypk",
+                                "mapWidth": "100%",
+                                "mapHeight": "100%"
+                            }).render();
+                            window.korea2MapInitialized = true;
+                            console.log('✅ 한국 2창고 지도 로드 완료');
+                        } else if (retryCount < maxRetries) {
+                            retryCount++;
+                            console.log(`⏳ Roughmap 로드 대기 중... (${retryCount}/${maxRetries})`);
+                            setTimeout(tryInitRoughmap, 500);
+                        } else {
+                            console.error('❌ 한국 2창고 지도 로드 실패');
+                            container.innerHTML = `
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f5f5f5;">
+                                    <p style="margin-bottom: 10px;">지도 로딩에 실패했습니다</p>
+                                    <a href="https://map.kakao.com/?q=경기도 광주시 도척면 도척로 401-65" target="_blank" style="color: #2563eb;">
+                                        카카오맵에서 보기
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    tryInitRoughmap();
+                };
+                document.head.appendChild(script);
             };
 
             // Old KakaoMap API initialization function - replaced with KakaoMapLoader class
@@ -2396,7 +2487,7 @@
             // 카카오맵 지도 퍼가기 적용 함수 (수정 버전)
             function loadKakaoMapFallback(address) {
                 console.log('🔄 카카오맵 지도 퍼가기로 전환 - 주소:', address);
-                const mapContainer = document.getElementById('korea-map');
+                const mapContainer = document.getElementById('korea1-map');
                 if (!mapContainer) return;
 
                 // 사이트에 맞는 사이즈로 조정된 카카오맵 지도 퍼가기
@@ -2549,7 +2640,7 @@
             }
 
             init() {
-                this.mapContainer = document.getElementById('korea-map');
+                this.mapContainer = document.getElementById('korea1-map');
                 if (!this.mapContainer) {
                     console.error('❌ KakaoMap: 지도 컨테이너를 찾을 수 없습니다');
                     return;
@@ -2880,7 +2971,7 @@
             }
 
             handleResize() {
-                const mapContainer = document.getElementById('korea-map');
+                const mapContainer = document.getElementById('korea1-map');
                 if (!mapContainer) return;
 
                 // 카카오맵 iframe 크기 조정
@@ -2942,7 +3033,7 @@
         // 전역 초기화
         document.addEventListener('DOMContentLoaded', () => {
             // KakaoMap Loader 초기화
-            if (document.getElementById('korea-map')) {
+            if (document.getElementById('korea1-map')) {
                 // Kakao Maps SDK가 완전히 로드될 때까지 대기
                 setTimeout(() => {
                     window.kakaoMapLoader = new KakaoMapLoader();
