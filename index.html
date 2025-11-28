@@ -1141,6 +1141,30 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        /* korea2-map roughmap 높이 100% 강제 적용 */
+        #korea2-map {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        #korea2-map .root_daum_roughmap {
+            flex: 1 !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100% !important;
+        }
+
+        #korea2-map .root_daum_roughmap .wrap_map {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100% !important;
+        }
+
+        #korea2-map .root_daum_roughmap .wrap_map .map {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* 카카오맵 지도퍼가기 주소/전화 섹션 숨김 */
         .root_daum_roughmap .section_address {
             display: none !important;
@@ -2262,7 +2286,7 @@
                             "timestamp" : "1764306480215",
                             "key" : "cxorr5mwypk",
                             "mapWidth" : "640",
-                            "mapHeight" : "360"
+                            "mapHeight" : "450"
                         }).render();
                         window.korea2MapInitialized = true;
                         console.log('✅ 한국 2창고 지도 초기화 완료');
@@ -2770,6 +2794,15 @@
                     console.log('✅ KakaoMap: 지도가 이미 생성됨, 타임아웃 무시');
                     return;
                 }
+
+                // DOM에서 지도가 실제로 렌더링되었는지 확인
+                const mapElement = this.mapContainer.querySelector('.kakao-map-container');
+                if (mapElement && mapElement.querySelector('div[id^="kakao-map-"]')) {
+                    console.log('✅ KakaoMap: DOM에서 지도 확인됨, 타임아웃 무시');
+                    this.mapCreatedSuccessfully = true;
+                    return;
+                }
+
                 console.log('⏰ KakaoMap: 타임아웃 발생, 대안으로 전환');
                 this.showFallbackStaticMap();
             }
