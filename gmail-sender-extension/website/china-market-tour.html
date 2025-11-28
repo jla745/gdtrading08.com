@@ -200,27 +200,21 @@
         }
 
         .map-container {
-            width: 90%;
-            max-width: 800px;
-            height: 400px;
+            width: 95%;
+            max-width: 1600px;
+            height: 800px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             margin: 0 auto 30px;
             position: relative;
-            cursor: grab;
-            touch-action: none;
-        }
-
-        .map-container.dragging {
-            cursor: grabbing;
         }
 
         .map-container iframe {
             width: 100%;
             height: 100%;
             border: none;
-            pointer-events: none;
+            /* pointer-events enabled for map interaction */
         }
 
         .map-info {
@@ -345,7 +339,7 @@
             }
 
             .map-container {
-                height: 400px;
+                height: 500px;
             }
         }
     </style>
@@ -850,102 +844,8 @@ ${data.additionalInfo}
                 once: true
             });
 
-            // Map drag functionality
-            const mapContainer = document.querySelector('.map-container');
-            let isDragging = false;
-            let startX, startY, scrollLeft, scrollTop;
-            let currentX = 0, currentY = 0;
-
-            mapContainer.addEventListener('mousedown', startDrag);
-            mapContainer.addEventListener('mousemove', drag);
-            mapContainer.addEventListener('mouseup', endDrag);
-            mapContainer.addEventListener('mouseleave', endDrag);
-
-            // Touch events for mobile
-            mapContainer.addEventListener('touchstart', startDrag);
-            mapContainer.addEventListener('touchmove', drag);
-            mapContainer.addEventListener('touchend', endDrag);
-
-            function startDrag(e) {
-                isDragging = true;
-                mapContainer.classList.add('dragging');
-
-                if (e.type === 'touchstart') {
-                    startX = e.touches[0].clientX;
-                    startY = e.touches[0].clientY;
-                } else {
-                    startX = e.clientX;
-                    startY = e.clientY;
-                }
-
-                scrollLeft = currentX;
-                scrollTop = currentY;
-
-                e.preventDefault();
-            }
-
-            function drag(e) {
-                if (!isDragging) return;
-
-                e.preventDefault();
-
-                let clientX, clientY;
-                if (e.type === 'touchmove') {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
-                } else {
-                    clientX = e.clientX;
-                    clientY = e.clientY;
-                }
-
-                const x = clientX - startX;
-                const y = clientY - startY;
-
-                // Calculate the distance to drag
-                const distance = Math.sqrt(x * x + y * y);
-
-                if (distance > 10) { // Only drag if moved more than 10px
-                    currentX = scrollLeft + x;
-                    currentY = scrollTop + y;
-
-                    // Limit the panning
-                    const maxPan = 200;
-                    currentX = Math.max(-maxPan, Math.min(maxPan, currentX));
-                    currentY = Math.max(-maxPan, Math.min(maxPan, currentY));
-
-                    // Apply the transformation
-                    mapContainer.style.transform = `translate(${currentX}px, ${currentY}px)`;
-                }
-            }
-
-            function endDrag(e) {
-                if (isDragging) {
-                    isDragging = false;
-                    mapContainer.classList.remove('dragging');
-                }
-            }
-
-            // Mouse wheel zoom functionality
-            mapContainer.addEventListener('wheel', function(e) {
-                e.preventDefault();
-
-                const delta = e.deltaY > 0 ? 1 : -1;
-                const iframe = mapContainer.querySelector('iframe');
-                const currentSrc = iframe.src;
-
-                // Extract current zoom level from URL
-                const urlParams = new URLSearchParams(currentSrc.split('?')[1]);
-                let currentZoom = parseInt(urlParams.get('z') || '15');
-
-                // Adjust zoom level
-                const newZoom = Math.max(10, Math.min(20, currentZoom + delta));
-
-                // Update the iframe src with new zoom level
-                if (newZoom !== currentZoom) {
-                    const newSrc = currentSrc.replace(/z=\d+/, `z=${newZoom}`);
-                    iframe.src = newSrc;
-                }
-            });
+            // Map interaction is now handled natively by Google Maps iframe
+            // No custom drag/zoom handlers needed
         });
 
         // Smooth scroll function
