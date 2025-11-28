@@ -1,0 +1,598 @@
+/**
+ * BX TRADE Style Services Section
+ * bxtrade.kr inspired service content with background styling
+ */
+
+.bx-trade-services {
+    position: relative;
+    padding: 120px 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    overflow: hidden;
+}
+
+.bx-trade-services .section_bg_color._section_bg_color {
+    background: linear-gradient(135deg, #534ab0 0%, #453ab0 100%);
+    opacity: 0.05;
+}
+
+.bx-trade-services .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero Section */
+.services-hero {
+    text-align: center;
+    margin-bottom: 80px;
+    padding: 60px 40px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(83, 74, 176, 0.1);
+}
+
+.hero-content h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 30px;
+    line-height: 1.4;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #534ab0, #453ab0);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(83, 74, 176, 0.3);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(83, 74, 176, 0.4);
+}
+
+.cta-button i {
+    font-size: 1.2rem;
+}
+
+/* Services Showcase */
+.services-showcase {
+    margin-bottom: 80px;
+    text-align: center;
+}
+
+.services-showcase h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 15px;
+}
+
+.services-showcase p {
+    font-size: 1.2rem;
+    color: var(--gray);
+    margin-bottom: 50px;
+}
+
+/* Services Grid */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.service-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #534ab0, #453ab0);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.service-card:hover::before {
+    transform: translateX(0);
+}
+
+.service-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #534ab0, #453ab0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    box-shadow: 0 10px 25px rgba(83, 74, 176, 0.3);
+}
+
+.service-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.service-card h4 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 15px;
+}
+
+.service-card p {
+    color: var(--gray);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* Stats Section */
+.stats-section {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 80px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 20px;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #534ab0;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #534ab0, #453ab0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray);
+}
+
+/* CTA Section */
+.cta-section {
+    text-align: center;
+    padding: 60px 40px;
+    background: linear-gradient(135deg, #534ab0, #453ab0);
+    border-radius: 20px;
+    color: white;
+}
+
+.cta-section h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.cta-section p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-button.primary {
+    background: white;
+    color: #534ab0;
+}
+
+.cta-button.primary:hover {
+    background: var(--white);
+    transform: translateY(-2px);
+}
+
+.cta-button.secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.cta-button.secondary:hover {
+    background: white;
+    color: #534ab0;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .bx-trade-services {
+        padding: 80px 0;
+    }
+
+    .services-hero {
+        padding: 40px 20px;
+        margin-bottom: 60px;
+    }
+
+    .hero-content h3 {
+        font-size: 1.8rem;
+    }
+
+    .services-showcase {
+        margin-bottom: 60px;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .service-card {
+        padding: 30px 20px;
+    }
+
+    .stats-section {
+        padding: 40px 20px;
+        margin-bottom: 60px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+    }
+
+    .cta-section {
+        padding: 40px 20px;
+    }
+
+    .cta-section h3 {
+        font-size: 1.5rem;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cta-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content h3 {
+        font-size: 1.6rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+/* Pure CSS Rail Slider Implementation */
+.services-rail-wrapper {
+  margin: 32px 0;
+}
+
+.services-rail__mask {
+  overflow: hidden;
+  width: 100%;
+}
+
+.services-rail__track {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  white-space: nowrap;
+  animation: services-scroll-left 45s linear infinite;
+  will-change: transform;
+}
+
+.service-rail-item {
+  flex: 0 0 auto;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease;
+  min-width: 280px;
+}
+
+/* Enhanced icon container with image support */
+
+/* Text content centering and alignment */
+.service-rail-item .text-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 0 0;
+}
+
+/* Force center alignment for all text in service items */
+.service-rail-item .text-left p {
+  text-align: center !important;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Additional override for centering */
+.service-rail-item .text-sm,
+.service-rail-item .text-xs {
+  text-align: center !important;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Enhanced image container - image as background */
+.service-rail-item .w-10.h-10 {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.service-rail-item .w-10.h-10 img {
+  display: none;
+}
+
+/* Fallback for unsupported browsers */
+@supports not (mix-blend-mode: multiply) {
+  .service-rail-item .absolute.inset-0.bg-gradient-to-br {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+.service-rail-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive animation speed */
+@media (max-width: 1024px) {
+  .services-rail__track {
+    animation-duration: 60s;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bx-trade-services {
+    padding: 80px 0;
+  }
+
+  .services-rail__track {
+    gap: 18px;
+  }
+
+  .service-rail-item .w-10.h-10 {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 640px) {
+  .services-rail__track {
+    animation-duration: 90s;
+    gap: 16px;
+  }
+
+  .service-rail-item {
+    min-width: 240px;
+    padding: 12px;
+  }
+
+  .service-rail-item .w-10.h-10 {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bx-trade-services {
+    padding: 60px 0;
+  }
+
+  .services-rail__track {
+    gap: 14px;
+  }
+
+  .service-rail-item .w-10.h-10 {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Enhanced accessibility and quality improvements */
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .services-rail__track {
+    animation: none;
+    transform: translateX(0);
+  }
+
+  .service-rail-item {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .service-rail-item {
+    border: 2px solid currentColor;
+  }
+
+  .service-rail-item .w-10.h-10 {
+    border: 2px solid currentColor;
+  }
+
+  .service-rail-item:hover {
+    border-color: var(--primary);
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.service-rail-item:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.service-rail-item:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Improved keyboard navigation */
+.service-rail-item {
+  contain: layout style paint;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Performance optimization */
+.services-rail__track {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.service-rail-item {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes services-scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+  padding: 12px 16px !important;
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+  transition: none !important;
+}
+
+.bx-services-carousel .owl-item > div:hover {
+  transform: none !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Icon styling consistency */
+.bx-services-carousel .owl-item .w-10 {
+  flex-shrink: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+}
+
+.bx-services-carousel .owl-item .text-left {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* Animation Effects */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bx-trade-services [data-aos="fade-up"] {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.bx-trade-services [data-aos="fade-up"].aos-animate {
+    opacity: 1;
+    transform: translateY(0);
+}

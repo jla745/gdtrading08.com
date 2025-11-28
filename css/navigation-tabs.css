@@ -1,0 +1,166 @@
+/**
+ * @TAG: TDD-IMPLEMENTATION-GREEN
+ * Navigation CSS - nav-tabs-item 클래스 구조
+ * GREEN Phase: 테스트 통과를 위한 CSS 구현
+ */
+
+/* 네비게이션 메인 컨테이너 */
+.nav-tabs {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+}
+
+/* 네비게이션 아이템 */
+.nav-tabs-item {
+    position: relative;
+}
+
+/* 네비게이션 링크 */
+.nav-tabs-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--dark);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+/* 활성 상태 */
+.nav-tabs-link.active {
+    color: var(--primary);
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* 호버 상태 */
+.nav-tabs-link:hover {
+    color: var(--primary);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* 드롭다운 컨테이너 */
+.nav-tabs-dropdown {
+    position: relative;
+}
+
+/* 드롭다운 메뉴 */
+.nav-tabs-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+/* 드롭다운 활성 상태 */
+.nav-tabs-dropdown:hover .nav-tabs-dropdown-menu,
+.nav-tabs-dropdown:focus-within .nav-tabs-dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.nav-tabs-dropdown-menu li {
+    list-style: none;
+}
+
+.nav-tabs-dropdown-menu a {
+    display: block;
+    padding: 12px 25px;
+    color: var(--dark);
+    text-decoration: none;
+    transition: background 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-tabs-dropdown-menu a:hover {
+    background: #f8fafc;
+    color: var(--primary);
+}
+
+/* 모바일 토글 버튼 */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.nav-toggle span {
+    width: 20px;
+    height: 2px;
+    background: var(--dark);
+    transition: all 0.3s ease;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 1024px) {
+    .nav-menu {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-tabs {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        padding: 80px 20px 20px;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-tabs.active {
+        right: 0;
+    }
+
+    .nav-tabs-item {
+        width: 100%;
+        margin: 4px 0;
+    }
+
+    .nav-tabs-link {
+        width: 100%;
+        padding: 16px 20px;
+    }
+
+    .nav-tabs-dropdown-menu {
+        position: static;
+        display: none;
+        opacity: 1;
+        transform: none;
+        box-shadow: none;
+        margin-left: 20px;
+        width: calc(100% - 40px);
+    }
+
+    .nav-tabs-dropdown.active .nav-tabs-dropdown-menu {
+        display: block;
+    }
+}

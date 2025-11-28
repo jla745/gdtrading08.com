@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD TRADE 웹사이트 개발 검토</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.1em; }
+        .content { padding: 40px; }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 15px;
+            border-left: 5px solid #3b82f6;
+        }
+        .section h2 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h2::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        .feature-card h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status.complete { background: #dcfce7; color: #166534; }
+        .status.testing { background: #fef3c7; color: #92400e; }
+
+        .link-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .link-list li {
+            margin-bottom: 12px;
+        }
+        .link-list a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #2563eb;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #eff6ff;
+            border-radius: 8px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+        .link-list a:hover {
+            background: #dbeafe;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tech-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .note-box {
+            background: #fefce8;
+            border: 1px solid #fde047;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .note-box h4 {
+            color: #a16207;
+            margin-bottom: 10px;
+        }
+        .note-box ul {
+            color: #78350f;
+            margin-left: 20px;
+        }
+        .note-box li {
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            background: #f1f5f9;
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+        }
+        .footer p { margin-bottom: 10px; }
+
+        .update-date {
+            background: #1e3a8a;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GD TRADE 웹사이트</h1>
+            <p>개발 검토 및 컨펌 요청</p>
+            <div class="update-date">최종 업데이트: 2024년 11월 28일</div>
+        </div>
+
+        <div class="content">
+            <!-- 페이지 목록 -->
+            <div class="section">
+                <h2>페이지 목록 <span class="status complete">완료</span></h2>
+                <ul class="link-list">
+                    <li><a href="index.html" target="_blank">메인 홈페이지 (index.html)</a></li>
+                    <li><a href="about.html" target="_blank">회사 소개 (about.html)</a></li>
+                    <li><a href="services.html" target="_blank">서비스 안내 (services.html)</a></li>
+                    <li><a href="contact.html" target="_blank">연락처 (contact.html)</a></li>
+                    <li><a href="china-market-tour.html" target="_blank">중국 시장 투어 신청 (china-market-tour.html)</a></li>
+                </ul>
+            </div>
+
+            <!-- 주요 기능 -->
+            <div class="section">
+                <h2>주요 구현 기능</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>중국 시장 투어 신청서</h3>
+                        <p>Web3Forms를 통한 이메일 발송 기능 구현. 투어 일정, 인원, 서비스 선택 후 신청 가능.</p>
+                        <span class="status complete">완료</span>
+                    </div>
+                    <div class="feature-card">
+                        <h3>한국/중국 창고 지도</h3>
+                        <p>한국 본사: 카카오맵 연동<br>중국 창고: 바이두맵 연동</p>
+                        <span class="status complete">완료</span>
+                    </div>
+                    <div class="feature-card">
+                        <h3>반응형 디자인</h3>
+                        <p>모바일, 태블릿, 데스크톱 모든 기기에서 최적화된 레이아웃 제공</p>
+                        <span class="status complete">완료</span>
+                    </div>
+                    <div class="feature-card">
+                        <h3>실시간 상담 연결</h3>
+                        <p>카카오톡 채널, 전화 상담 버튼을 통한 빠른 고객 연결</p>
+                        <span class="status complete">완료</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 기술 스택 -->
+            <div class="section">
+                <h2>기술 스택</h2>
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML5</span>
+                    <span class="tech-tag">CSS3</span>
+                    <span class="tech-tag">JavaScript</span>
+                    <span class="tech-tag">Kakao Maps API</span>
+                    <span class="tech-tag">Baidu Maps</span>
+                    <span class="tech-tag">Web3Forms</span>
+                    <span class="tech-tag">AOS Animation</span>
+                    <span class="tech-tag">Font Awesome</span>
+                    <span class="tech-tag">Flatpickr</span>
+                </div>
+            </div>
+
+            <!-- 이메일 발송 설정 -->
+            <div class="section">
+                <h2>이메일 발송 설정 (투어 신청)</h2>
+                <div class="feature-card">
+                    <h3>Web3Forms 연동</h3>
+                    <p><strong>수신 이메일:</strong> SUP0827@NAVER.COM</p>
+                    <p><strong>발송 내용:</strong> 투어 신청자 정보, 방문 일정, 서비스 선택 사항</p>
+                    <p><strong>상태:</strong> <span class="status complete">테스트 완료</span></p>
+                </div>
+            </div>
+
+            <!-- 확인 요청 사항 -->
+            <div class="section">
+                <h2>확인 요청 사항</h2>
+                <div class="note-box">
+                    <h4>아래 항목들을 확인해주세요:</h4>
+                    <ul>
+                        <li>각 페이지의 텍스트 내용 및 이미지가 올바른지 확인</li>
+                        <li>한국 본사 주소 및 중국 창고 주소가 정확한지 확인</li>
+                        <li>카카오톡 채널 링크가 올바른지 확인</li>
+                        <li>전화번호가 정확한지 확인 (010-8781-3083)</li>
+                        <li>투어 신청 이메일 수신 테스트</li>
+                        <li>모바일에서 레이아웃 확인</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 배포 정보 -->
+            <div class="section">
+                <h2>로컬 테스트 방법</h2>
+                <div class="feature-card">
+                    <h3>현재 로컬 서버 실행 중</h3>
+                    <p><strong>주소:</strong> http://localhost:3000</p>
+                    <p><strong>메인 페이지:</strong> <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+                    <p><strong>투어 신청:</strong> <a href="http://localhost:3000/china-market-tour.html" target="_blank">http://localhost:3000/china-market-tour.html</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>GD TRADE</strong> - 중국 구매대행 및 무역 서비스</p>
+            <p>문의: gdtrading08@gmail.com | 전화: 010-8781-3083</p>
+        </div>
+    </div>
+</body>
+</html>

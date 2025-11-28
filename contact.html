@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GD TRADE - 연락처 및 오시는 길">
+    <title>GD TRADE - 연락처</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: var(--white);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 50px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu .dropdown {
+            position: relative;
+        }
+
+        .nav-menu .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 10px 0;
+            min-width: 200px;
+            z-index: 1001;
+        }
+
+        .nav-menu .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .nav-menu .dropdown-menu li {
+            list-style: none;
+        }
+
+        .nav-menu .dropdown-menu a {
+            display: block;
+            padding: 12px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .nav-menu .dropdown-menu a:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-top: 80px;
+            min-height: 40vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .page-header h1 {
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .page-header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 60px;
+        }
+
+        /* Contact Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 60px;
+            margin-top: 40px;
+        }
+
+        .contact-info {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .ceo-name {
+            font-size: 2em;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .contact-item {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: #f8fafc;
+            transform: translateX(10px);
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-label {
+            font-size: 0.9em;
+            color: var(--gray);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .contact-value {
+            font-size: 1.2em;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .contact-value a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Map Section */
+        .map-section {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .map-tab {
+            flex: 1;
+            padding: 15px 25px;
+            background: #f1f5f9;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--gray);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .map-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+    
+        .map-container {
+            width: 100%;
+            height: 450px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-service-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .map-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+        }
+
+        .map-static {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .map-controls {
+            margin-top: 25px;
+        }
+
+        .map-address {
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .map-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .map-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .map-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 35, 0.3);
+        }
+
+        .btn-icon {
+            font-size: 1.2em;
+        }
+
+        .btn-text {
+            font-size: 0.9em;
+        }
+
+        .directions-info, .geocoding-info, .reverse-info {
+            margin-top: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .directions-header, .geocoding-header, .reverse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .directions-header h3, .geocoding-header h3, .reverse-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .close-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: #e5e7eb;
+            color: var(--dark);
+        }
+
+        .directions-content, .geocoding-content, .reverse-content {
+            font-size: 0.95em;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .address-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        .address-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .current-location {
+            padding: 15px;
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            color: #1e40af;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .travel-mode-select, .route-option-select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            outline: none;
+        }
+
+        .travel-mode-select:focus, .route-option-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .directions-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .directions-result {
+            margin-top: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 15px;
+            border-radius: 8px;
+            color: #166534;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 15px;
+            border-radius: 8px;
+            color: #dc2626;
+        }
+
+        .location-info {
+            line-height: 1.6;
+        }
+
+        .map-address strong {
+            color: var(--dark);
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Floating Contact */
+        #floating-contact {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #floating-contact .btn {
+            width: 140px;
+            padding: 15px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #floating-contact .btn:hover {
+            transform: translateX(-8px) scale(1.05);
+        }
+
+        .contact-call {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .contact-kakao {
+            background: #FEE500;
+            color: #371D1E;
+        }
+
+        .contact-kakao img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .contact-apply {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: #94a3b8;
+            padding: 60px 60px 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5em;
+            }
+
+            #floating-contact {
+                flex-direction: row;
+                right: 15px;
+                left: 15px;
+                top: auto;
+                bottom: 15px;
+                transform: none;
+            }
+
+            #floating-contact .btn {
+                flex: 1;
+                width: auto;
+                padding: 12px 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">GD TRADE</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">홈</a></li>
+                <li>
+                    <a href="china-market-tour.html">중국 시장 투어</a>
+                </li>
+                <li><a href="services.html">서비스</a></li>
+                <li><a href="about.html">회사소개</a></li>
+                <li><a href="contact.html">연락처</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div data-aos="fade-up">
+            <h1>연락처</h1>
+            <p>언제든 편하게 문의해주세요</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Contact & Map -->
+        <div class="contact-grid">
+            <div class="contact-info" data-aos="fade-right">
+                <div class="ceo-name">GD TRADE 대표 이상섭 올림</div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <div class="contact-details">
+                        <div class="contact-label">전화번호</div>
+                        <div class="contact-value">
+                            <a href="tel:010-8781-3083">010-8781-3083</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">💬</div>
+                    <div class="contact-details">
+                        <div class="contact-label">카카오톡</div>
+                        <div class="contact-value">azlee11</div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">✉️</div>
+                    <div class="contact-details">
+                        <div class="contact-label">이메일</div>
+                        <div class="contact-value">
+                            <a href="mailto:sup0827@naver.com">sup0827@naver.com</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">🌐</div>
+                    <div class="contact-details">
+                        <div class="contact-label">웹사이트</div>
+                        <div class="contact-value">
+                            <a href="https://gdtrading08.com" target="_blank">gdtrading08.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-section" data-aos="fade-left">
+                <!-- 지도 탭 -->
+                <div class="map-tabs">
+                    <div class="map-tab active" onclick="showContactMap('korea')">한국 본사</div>
+                    <div class="map-tab" onclick="showContactMap('china')">중국 창고</div>
+                </div>
+
+                <!-- 한국 본사 지도 (카카오맵) -->
+                <div id="korea-map-section" class="map-container-wrapper" style="display: block;">
+                    <div id="korea-contact-map" class="map-container" style="width:100%; height:450px; border-radius:15px;"></div>
+                    <div class="map-address" style="margin-top: 10px;">
+                        <strong>한국 본사 주소:</strong>
+                        <span>경기도 광주시 도척면 도척로 489</span>
+                    </div>
+                </div>
+
+                <!-- 중국 창고 지도 (Baidu Maps iframe) -->
+                <div id="china-map-section" class="map-container-wrapper" style="display: none;">
+                    <iframe class="map-iframe" src="https://j.map.baidu.com/59/qTZk" style="width:100%; height:450px; border:none; border-radius:15px;" allowfullscreen="" loading="lazy"></iframe>
+                    <div class="map-address" style="margin-top: 10px;">
+                        <strong>중국 창고 주소:</strong>
+                        <span>广东省深圳市宝安区松岗街道仓库园区</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Contact -->
+    <div id="floating-contact">
+        <a href="tel:010-8781-3083" class="btn contact-call">
+            <span>📞</span>
+            <span class="text">전화상담</span>
+        </a>
+        <a href="https://pf.kakao.com/_xoDxaln/chat" target="_blank" class="btn contact-kakao">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg" alt="카카오톡">
+            <span class="text">카톡상담</span>
+        </a>
+        <a href="about.html" class="btn contact-apply">
+            <span>✈️</span>
+            <span class="text">투어신청</span>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 GD TRADE. All rights reserved. | 대표: 이상섭 | 한국: 경기도 광주시 | 중국: 广东省深圳市宝安区松岗街道仓库园区</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- 카카오맵 JavaScript API -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=a14d631da6b8a5dfa796598ced06c73e&libraries=services"></script>
+
+
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // 지도 탭 전환 함수
+        function showContactMap(type) {
+            const tabs = document.querySelectorAll('.map-tab');
+            const koreaSection = document.getElementById('korea-map-section');
+            const chinaSection = document.getElementById('china-map-section');
+
+            // 탭 활성화 상태 변경
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            if (type === 'korea') {
+                tabs[0].classList.add('active');
+                koreaSection.style.display = 'block';
+                chinaSection.style.display = 'none';
+            } else {
+                tabs[1].classList.add('active');
+                koreaSection.style.display = 'none';
+                chinaSection.style.display = 'block';
+            }
+        }
+
+        // 카카오맵 초기화 (한국 본사)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                console.log('🚀 연락처 페이지 카카오맵 초기화 시작...');
+
+                const mapContainer = document.getElementById('korea-contact-map');
+                if (!mapContainer) {
+                    console.error('❌ korea-contact-map 컨테이너를 찾을 수 없습니다');
+                    return;
+                }
+
+                // SDK 로드 확인
+                if (typeof kakao === 'undefined' || typeof kakao.maps === 'undefined') {
+                    console.error('❌ 카카오맵 SDK가 로드되지 않았습니다');
+                    mapContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f5f5f5;border-radius:15px;"><a href="https://map.kakao.com/?q=경기도 광주시 도척면 도척로 489" target="_blank" style="padding:10px 20px;background:#ff6b35;color:white;text-decoration:none;border-radius:5px;">카카오맵에서 보기</a></div>';
+                    return;
+                }
+
+                console.log('✅ 카카오맵 SDK 확인 완료');
+
+                const address = '경기도 광주시 도척면 도척로 489';
+
+                // Geocoder로 주소를 좌표로 변환
+                const geocoder = new kakao.maps.services.Geocoder();
+
+                geocoder.addressSearch(address, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                        console.log('✅ 주소 변환 성공:', address, '→', result[0].y, result[0].x);
+
+                        // 지도 생성
+                        const map = new kakao.maps.Map(mapContainer, {
+                            center: coords,
+                            level: 3
+                        });
+
+                        // 마커 생성
+                        const marker = new kakao.maps.Marker({
+                            map: map,
+                            position: coords
+                        });
+
+                        // 인포윈도우 생성
+                        const infowindow = new kakao.maps.InfoWindow({
+                            content: '<div style="padding:10px;font-size:12px;width:200px;"><strong>GD TRADE 한국 본사</strong><br>' + address + '</div>'
+                        });
+
+                        // 마커 클릭 시 인포윈도우 표시
+                        kakao.maps.event.addListener(marker, 'click', function() {
+                            infowindow.open(map, marker);
+                        });
+
+                        // 처음에 인포윈도우 자동 표시
+                        infowindow.open(map, marker);
+
+                        // 지도 컨트롤 추가
+                        const zoomControl = new kakao.maps.ZoomControl();
+                        map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+                        console.log('✅ 연락처 페이지 카카오맵 생성 완료!');
+
+                    } else {
+                        console.error('❌ 주소 변환 실패:', status);
+                        // 폴백: 하드코딩된 좌표 사용
+                        const fallbackCoords = new kakao.maps.LatLng(37.3595, 127.2557);
+
+                        const map = new kakao.maps.Map(mapContainer, {
+                            center: fallbackCoords,
+                            level: 5
+                        });
+
+                        const marker = new kakao.maps.Marker({
+                            map: map,
+                            position: fallbackCoords
+                        });
+
+                        console.log('⚠️ 폴백 좌표로 지도 생성');
+                    }
+                });
+
+            }, 1000);
+        });
+
+        console.log('연락처 페이지: 한국 본사(카카오맵) + 중국 창고(바이두 iframe) 지도 표시');
+    </script>
+</body>
+</html>
