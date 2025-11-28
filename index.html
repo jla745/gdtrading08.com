@@ -16,6 +16,12 @@
     <link rel="dns-prefetch" href="//code.jquery.com">
     <link rel="dns-prefetch" href="//www.google.com">
     <link rel="dns-prefetch" href="//www.youtube.com">
+    <link rel="dns-prefetch" href="//img.youtube.com">
+    <link rel="dns-prefetch" href="//i.ytimg.com">
+
+    <!-- YouTube Preconnect for Faster Video Loading -->
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://img.youtube.com" crossorigin>
 
     <!-- 권한 정책 설정 -->
     <meta http-equiv="Permissions-Policy" content="clipboard-read=*, clipboard-write=*, geolocation=*, microphone=*, camera=*">
@@ -1141,42 +1147,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* korea1-map, korea2-map 높이 100% 강제 적용 (display는 JS에서 제어) */
-        #korea1-map[style*="block"],
-        #korea2-map[style*="block"] {
-            display: flex !important;
-            flex-direction: column !important;
-        }
-
-        #korea1-map #korea1-map-container {
-            flex: 1 !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        #korea2-map .root_daum_roughmap {
-            flex: 1 !important;
-            width: 100% !important;
-            height: 100% !important;
-            min-height: 100% !important;
-        }
-
-        #korea2-map .root_daum_roughmap .wrap_map {
-            width: 100% !important;
-            height: 100% !important;
-            min-height: 100% !important;
-        }
-
-        #korea2-map .root_daum_roughmap .wrap_map .map {
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        /* 카카오맵 지도퍼가기 주소/전화 섹션 숨김 */
-        .root_daum_roughmap .section_address {
-            display: none !important;
-        }
-
         /* 모바일 반응형 */
         @media (max-width: 768px) {
             .about-card .map-container .root_daum_roughmap {
@@ -1196,6 +1166,84 @@
         }
 
         /* REMOVED: Custom Overlay Controls - Violates YouTube API Policy */
+
+        /* YouTube Placeholder with Thumbnail (Performance Optimization) */
+        .youtube-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+            background: #000;
+        }
+
+        .youtube-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .youtube-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .youtube-play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            filter: brightness(1.1);
+        }
+
+        .youtube-play-btn:focus {
+            outline: 2px solid #fff;
+            outline-offset: 4px;
+        }
+
+        .youtube-play-btn svg {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .youtube-play-bg {
+            transition: fill 0.2s ease;
+        }
+
+        .youtube-play-btn:hover .youtube-play-bg {
+            fill: #cc0000;
+        }
+
+        /* Thumbnail Loading Spinner */
+        .thumbnail-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 3;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px 40px;
+            border-radius: 12px;
+        }
+
+        .thumbnail-loading i {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ff0000;
+        }
+
+        .thumbnail-loading p {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 600;
+        }
 
         /* Loading Indicator */
         .about-card .video-loading {
@@ -1661,22 +1709,34 @@
 
         <div class="about-card" data-aos="fade-up">
                 <div class="video-container youtube-shorts" id="youtube-video-container">
-                    <!-- YouTube Shorts Video -->
-                    <div class="video-wrapper" id="video-wrapper">
+                    <!-- YouTube Thumbnail Placeholder (Shows while loading) -->
+                    <div class="youtube-placeholder" id="youtube-placeholder">
+                        <img
+                            src="https://img.youtube.com/vi/_MxIiCA3cRs/maxresdefault.jpg"
+                            alt="GD TRADE 소개 동영상 썸네일"
+                            class="youtube-thumbnail"
+                            loading="lazy">
+                        <div class="loading-spinner thumbnail-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>동영상 로딩 중...</p>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Shorts Video (Lazy loaded via Intersection Observer) -->
+                    <div class="video-wrapper" id="video-wrapper" style="display: none;">
                         <iframe
                             id="youtube-iframe"
                             class="youtube-iframe"
-                            src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&autoplay=1&mute=1&loop=1&playlist=_MxIiCA3cRs&origin=http://localhost:8000&widget_referrer=http://localhost:8000"
+                            data-src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&autoplay=1&mute=1&loop=1&playlist=_MxIiCA3cRs"
                             title="GD TRADE 소개 동영상 (YouTube Shorts)"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen
-                            loading="eager">
+                            allowfullscreen>
                         </iframe>
 
                       </div>
 
-                    <!-- Loading Indicator -->
-                    <div class="video-loading" id="video-loading">
+                    <!-- Loading Indicator (Legacy, hidden by default) -->
+                    <div class="video-loading" id="video-loading" style="display: none;">
                         <div class="loading-spinner">
                             <i class="fas fa-spinner fa-spin"></i>
                             <p>YouTube Shorts 로딩 중...</p>
@@ -1704,18 +1764,18 @@
         <div class="ceo-message" data-aos="fade-up">
             <h3>대표 이상섭 인사말</h3>
             <p>9년 동안 셀러로 일하면서, 저는 늘 이런 생각이 들었습니다.</p>
-            <p>"수수료는 다 받아 가는데, 정작 검수도 없고 문제 생기면 책임지는 사람은 왜 나뿐이지?"</p>
+            <p>"수수료는 다 받아가는데, 정작 검수도 없고 문제 생기면 책임지는 사람은 왜 나뿐이지?"</p>
             <p>그것도 소량이 아니라, 컨테이너 단위 오더인데도요.</p>
             <br>
             <p>기존에 거래해 온 대부분의 업체들은 솔직히 말해 "통·번역 + 주문 넣어주기" 이상을 하지 않았습니다.</p>
-            <p>그래서 답답함을 못 이기고, 수없이 중국 공장들을 하나씩 돌아다녔습니다.</p>
+            <p>그래서 답답함을 못 이기고, 직접 한 달 동안 중국에 머무르며 공장들을 하나씩 돌아다녔습니다.</p>
             <p>그때 느꼈습니다. "아, 이건 제대로 된 무역업을 내가 직접 해야겠다."</p>
             <br>
-            <p>1688, 알리바바, 바이두에는 생각보다 "가짜 업체"가 정말 많습니다.</p>
+            <p>1688, 알리바바, 바이두에는 생각보다 **"가짜 업체"**가 정말 많습니다.</p>
             <p>그래서 저희는 직접 공장을 방문해서, 눈으로 보고 사람을 만나 본 뒤에만 오더를 진행합니다.</p>
             <p>그 과정을 거쳐야만 품질, 단가, 납기를 책임질 수 있다는 걸 몸으로 배웠습니다.</p>
             <br>
-            <p>제가 유튜브에서도 자주 말씀드리는 단어가 바로 "공장 컨트롤"입니다.</p>
+            <p>제가 유튜브에서도 자주 말씀드리는 단어가 바로 **"공장 컨트롤"**입니다.</p>
             <p>자주 찾아가서 공정을 보고, 그때그때 피드백을 빠르게 주어야 본 상품에서 사고가 나지 않습니다.</p>
             <p>저희는 이 부분을 가장 중요하게 생각하고, 항상 그 기준으로 움직이고 있습니다.</p>
             <br>
@@ -1945,23 +2005,61 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">🌐</div>
+                    <div class="contact-details">
+                        <div class="contact-label">웹사이트</div>
+                        <div class="contact-value">
+                            <a href="https://gdtrading08.com" target="_blank">gdtrading08.com</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="map-section" data-aos="fade-left">
                 <div class="map-tabs">
-                    <div class="map-tab active" onclick="showMap('korea1')">한국 1창고</div>
-                    <div class="map-tab" onclick="showMap('korea2')">한국 2창고</div>
-                    <div class="map-tab" onclick="showMap('china')">중국 창고</div>
+                    <div class="map-tab active" onclick="window.showMap('korea1')">한국 1창고</div>
+                    <div class="map-tab" onclick="window.showMap('korea2')">한국 2창고</div>
+                    <div class="map-tab" onclick="window.showMap('china')">중국 창고</div>
                 </div>
+                <!-- 한국 1창고 지도 -->
                 <div id="korea1-map" class="map-container">
-                    <!-- 카카오맵 SDK 방식 (한국 1창고: 경기도 광주시 도척면 도척로 489) -->
-                    <div id="korea1-map-container" style="width:100%;height:100%;"></div>
+                    <!-- 로딩 상태 -->
+                    <div class="map-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>지도를 불러오는 중입니다...</p>
+                    </div>
+
+                    <!-- 에러 상태 -->
+                    <div class="map-error" style="display: none;">
+                        <div class="error-icon">⚠️</div>
+                        <p>지도 로딩에 실패했습니다</p>
+                        <button onclick="retryKakaoMap()" class="retry-button">다시 시도</button>
+                    </div>
+
+                    <!-- 폴백 콘텐츠 -->
+                    <div class="map-fallback" style="display: none;">
+                        <a href="https://map.kakao.com/?urlX=573831&urlY=1058473&urlLevel=2&map_type=TYPE_SKYVIEW&map_hybrid=true"
+                           target="_blank" rel="noopener noreferrer"
+                           class="static-map-link">
+                            <img src="https://staticmap.kakao.com/map/skyviewmapservice?FORMAT=PNG&RDR=HybridRender&SCALE=1.25&MX=573830&MY=1058474&S=0&IW=640&IH=360&LANG=0&COORDSTM=WCONGNAMUL&logo=kakao_logo"
+                                 alt="GD TRADE 한국 1창고 위치 (카카오맵 하이브리드 뷰)"
+                                 class="static-map-image">
+                        </a>
+                        <div class="location-info">
+                            <h3>GD TRADE 한국 1창고</h3>
+                            <p>📍 경기도 광주시 도척면 도척로 489</p>
+                            <p><small>이미지를 클릭하면 카카오맵에서 자세히 볼 수 있습니다</small></p>
+                        </div>
+                    </div>
                 </div>
+                <!-- 한국 2창고 지도 -->
                 <div id="korea2-map" class="map-container" style="display: none;">
-                    <!-- * 카카오맵 - 지도퍼가기 (수동 초기화) -->
-                    <!-- 1. 지도 노드 - root_daum_roughmap_landing 클래스 제거하여 자동 초기화 방지 -->
-                    <div id="daumRoughmapContainer1764306480215" class="root_daum_roughmap"></div>
+                    <!-- Daum Roughmap으로 로드됨 -->
                 </div>
+                <!-- 중국 창고 지도 -->
                 <div id="china-map" class="map-container" style="display: none;">
                     <iframe class="map-iframe" src="https://j.map.baidu.com/59/qTZk" allowfullscreen="" loading="lazy"></iframe>
                 </div>
@@ -2028,39 +2126,81 @@
             // Initialize Navigation
             new NavigationManager();
 
-            // YouTube Policy Compliant Player (Simple Implementation)
-            class YouTubePolicyCompliantPlayer {
+            // YouTube Optimized Player with Intersection Observer (Auto-play when visible)
+            class YouTubeOptimizedPlayer {
                 constructor() {
                     this.iframe = document.getElementById('youtube-iframe');
-                    this.loading = document.getElementById('video-loading');
                     this.fallback = document.getElementById('video-fallback');
+                    this.placeholder = document.getElementById('youtube-placeholder');
+                    this.videoWrapper = document.getElementById('video-wrapper');
+                    this.videoContainer = document.getElementById('youtube-video-container');
                     this.hasError = false;
                     this.loadingTimeout = null;
+                    this.isLoaded = false;
 
                     this.init();
                 }
 
                 init() {
-                    if (!this.iframe) {
-                        console.error('🎥 YouTube iframe not found');
-                        return;
-                    }
-
-                    console.log('🎥 Initializing YouTube Policy Compliant Player');
-                    this.setupEventListeners();
-                    this.startLoadingTimer();
+                    console.log('🎥 Initializing YouTube Optimized Player (Intersection Observer)');
+                    this.setupIntersectionObserver();
                 }
 
-                setupEventListeners() {
-                    // iframe load events only (no custom controls)
-                    this.iframe.addEventListener('load', () => this.onIframeLoad());
-                    this.iframe.addEventListener('error', (e) => this.onIframeError(e));
+                setupIntersectionObserver() {
+                    // Check if Intersection Observer is supported
+                    if ('IntersectionObserver' in window) {
+                        const options = {
+                            root: null,
+                            rootMargin: '500px', // Start loading 500px before visible (earlier preload)
+                            threshold: 0.01
+                        };
+
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting && !this.isLoaded) {
+                                    console.log('🎥 Video container is visible - loading YouTube');
+                                    this.loadVideo();
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        }, options);
+
+                        if (this.videoContainer) {
+                            observer.observe(this.videoContainer);
+                        }
+                    } else {
+                        // Fallback: load immediately for older browsers
+                        console.log('🎥 IntersectionObserver not supported - loading immediately');
+                        this.loadVideo();
+                    }
+                }
+
+                loadVideo() {
+                    if (this.isLoaded) return;
+                    this.isLoaded = true;
+
+                    console.log('🎥 Starting YouTube video load');
+
+                    // Show video wrapper and hide placeholder immediately
+                    if (this.videoWrapper) {
+                        this.videoWrapper.style.display = 'block';
+                    }
+
+                    // Hide placeholder immediately (don't wait for iframe load)
+                    if (this.placeholder) {
+                        this.placeholder.style.display = 'none';
+                    }
+
+                    // Load iframe with actual src (includes autoplay=1&mute=1)
+                    if (this.iframe && this.iframe.dataset.src) {
+                        this.iframe.src = this.iframe.dataset.src;
+                        // No need to wait for load event - video will appear when ready
+                    }
                 }
 
                 onIframeLoad() {
                     console.log('🎥 YouTube iframe loaded successfully');
-                    // Hide loading after delay to ensure content is ready
-                    setTimeout(() => this.hideLoading(), 3000);
+                    this.hidePlaceholder();
                 }
 
                 onIframeError(error) {
@@ -2070,22 +2210,25 @@
 
                 startLoadingTimer() {
                     this.loadingTimeout = setTimeout(() => {
-                        if (!this.hasError) {
-                            console.warn('🎥 YouTube loading timeout, showing fallback');
-                            this.showFallback();
+                        if (!this.hasError && this.placeholder) {
+                            // If still showing placeholder after 5s, hide it anyway
+                            // (video might be playing but load event didn't fire correctly)
+                            console.log('🎥 Timeout - hiding placeholder');
+                            this.hidePlaceholder();
                         }
-                    }, 10000); // 10 second timeout
+                    }, 5000); // 5 second timeout
                 }
 
-                hideLoading() {
+                hidePlaceholder() {
                     if (this.loadingTimeout) {
                         clearTimeout(this.loadingTimeout);
                         this.loadingTimeout = null;
                     }
-                    if (this.loading) {
-                        this.loading.style.opacity = '0';
+                    if (this.placeholder) {
+                        this.placeholder.style.opacity = '0';
+                        this.placeholder.style.transition = 'opacity 0.3s ease';
                         setTimeout(() => {
-                            if (this.loading) this.loading.style.display = 'none';
+                            if (this.placeholder) this.placeholder.style.display = 'none';
                         }, 300);
                     }
                 }
@@ -2096,17 +2239,20 @@
                         clearTimeout(this.loadingTimeout);
                         this.loadingTimeout = null;
                     }
+                    if (this.placeholder) {
+                        this.placeholder.style.display = 'none';
+                    }
                     if (this.fallback) {
                         this.fallback.style.display = 'flex';
-                        if (this.iframe && this.iframe.parentElement) {
-                            this.iframe.parentElement.style.display = 'none';
+                        if (this.videoWrapper) {
+                            this.videoWrapper.style.display = 'none';
                         }
                     }
                 }
             }
 
             // Initialize YouTube player
-            const youtubePlayer = new YouTubePolicyCompliantPlayer();
+            const youtubePlayer = new YouTubeOptimizedPlayer();
 
             // 권한 정책 위반 감지 및 무시
             const originalConsoleError = console.error;
@@ -2181,6 +2327,9 @@
 
                         console.log('✅ 카카오맵 생성 완료!');
 
+                        // KakaoMapLoader 충돌 방지 플래그
+                        window.kakaoMap1Initialized = true;
+
                     } else {
                         console.error('❌ 주소 변환 실패:', status);
                         // 폴백: 하드코딩된 좌표 사용 (경기도 광주시 도척면 도척로 489 근처)
@@ -2224,169 +2373,142 @@
                 }
             })();
 
-            // Enhanced Map functionality with Geocoding
-            // 한국 1창고 지도 초기화 상태
-            window.korea1MapInitialized = false;
-            window.korea1MapInstance = null;
-
-            // 한국 1창고 지도 초기화 함수 (SDK 방식)
-            window.initKorea1Map = function() {
-                console.log('🔄 한국 1창고 지도 초기화 시도...');
-
-                if (window.korea1MapInitialized && window.korea1MapInstance) {
-                    console.log('✅ 이미 초기화됨');
-                    // 지도 크기 재조정
-                    window.korea1MapInstance.relayout();
-                    return;
-                }
-
-                const container = document.getElementById('korea1-map-container');
-                if (!container) {
-                    console.error('❌ korea1-map-container를 찾을 수 없음');
-                    return;
-                }
-
-                // kakao.maps SDK 확인
-                if (typeof kakao === 'undefined' || !kakao.maps) {
-                    console.error('❌ 카카오맵 SDK가 로드되지 않음');
-                    return;
-                }
-
-                try {
-                    // 경기도 광주시 도척면 도척로 489 좌표
-                    const coords = new kakao.maps.LatLng(37.3096272959652, 127.33325944582);
-
-                    const options = {
-                        center: coords,
-                        level: 3
-                    };
-
-                    const map = new kakao.maps.Map(container, options);
-                    window.korea1MapInstance = map;
-
-                    // 마커 추가
-                    const marker = new kakao.maps.Marker({
-                        map: map,
-                        position: coords
-                    });
-
-                    // 인포윈도우 추가
-                    const infowindow = new kakao.maps.InfoWindow({
-                        content: '<div style="padding:5px;font-size:12px;white-space:nowrap;">경기 광주시 도척면 도척로 489</div>'
-                    });
-                    infowindow.open(map, marker);
-
-                    // 줌 컨트롤 추가
-                    const zoomControl = new kakao.maps.ZoomControl();
-                    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-
-                    window.korea1MapInitialized = true;
-                    console.log('✅ 한국 1창고 지도 초기화 완료');
-
-                    // 지도 크기 재조정 (컨테이너가 보이지 않을 때 생성되면 필요)
-                    setTimeout(() => {
-                        map.relayout();
-                        map.setCenter(coords);
-                    }, 100);
-
-                } catch (e) {
-                    console.error('❌ 한국 1창고 지도 초기화 실패:', e);
-                }
-            };
-
-            // 한국 2창고 지도 초기화 상태
-            window.korea2MapInitialized = false;
-
-            // 한국 2창고 지도 초기화 함수
-            window.korea2MapRetryCount = 0;
-            window.initKorea2Map = function() {
-                console.log('🔄 한국 2창고 지도 초기화 시도...');
-
-                if (window.korea2MapInitialized) {
-                    console.log('✅ 이미 초기화됨');
-                    return;
-                }
-
-                const container = document.getElementById('daumRoughmapContainer1764306480215');
-                if (!container) {
-                    console.error('❌ 컨테이너를 찾을 수 없음');
-                    return;
-                }
-
-                // roughmapLoader가 로드되었는지 확인
-                console.log('🔍 daum 객체 확인:', {
-                    daumExists: typeof daum !== 'undefined',
-                    roughmapExists: typeof daum !== 'undefined' && daum.roughmap,
-                    LanderExists: typeof daum !== 'undefined' && daum.roughmap && daum.roughmap.Lander
-                });
-
-                if (typeof daum !== 'undefined' && daum.roughmap && daum.roughmap.Lander) {
-                    try {
-                        new daum.roughmap.Lander({
-                            "timestamp" : "1764306480215",
-                            "key" : "cxorr5mwypk",
-                            "mapWidth" : "640",
-                            "mapHeight" : "450"
-                        }).render();
-                        window.korea2MapInitialized = true;
-                        console.log('✅ 한국 2창고 지도 초기화 완료');
-                    } catch (e) {
-                        console.error('❌ 한국 2창고 지도 초기화 실패:', e);
-                    }
-                } else {
-                    // roughmapLoader 스크립트 로드 대기 (최대 10회 재시도)
-                    window.korea2MapRetryCount++;
-                    if (window.korea2MapRetryCount < 10) {
-                        console.log('⏳ roughmapLoader 대기 중... (시도 ' + window.korea2MapRetryCount + '/10)');
-                        setTimeout(window.initKorea2Map, 500);
-                    } else {
-                        console.error('❌ roughmapLoader 로드 실패 - 최대 재시도 횟수 초과');
-                    }
-                }
-            };
-
-            window.showMap = function (location) {
+            // Enhanced Map functionality with Geocoding - 3 warehouses support
+            window.showMap = async function (location) {
                 const korea1Map = document.getElementById('korea1-map');
                 const korea2Map = document.getElementById('korea2-map');
                 const chinaMap = document.getElementById('china-map');
                 const addressLabel = document.getElementById('map-label');
-                const addressText = document.getElementById('map-address-text');
+                const address = document.getElementById('map-address-text');
                 const tabs = document.querySelectorAll('.map-tab');
 
+                // 모든 지도 숨기기
+                if (korea1Map) korea1Map.style.display = 'none';
+                if (korea2Map) korea2Map.style.display = 'none';
+                if (chinaMap) chinaMap.style.display = 'none';
+
+                // 모든 탭 비활성화
                 if (tabs) {
                     tabs.forEach(tab => tab.classList.remove('active'));
-
-                    // 모든 지도 숨기기
-                    if (korea1Map) korea1Map.style.display = 'none';
-                    if (korea2Map) korea2Map.style.display = 'none';
-                    if (chinaMap) chinaMap.style.display = 'none';
-
-                    if (location === 'korea1' && korea1Map) {
-                        korea1Map.style.display = 'block';
-                        if (addressLabel) addressLabel.textContent = '한국 1창고:';
-                        if (addressText) addressText.textContent = '경기도 광주시 도척면 도척로 489 (GD TRADE)';
-                        if (tabs[0]) tabs[0].classList.add('active');
-
-                        // 한국 1창고 지도 초기화 (SDK 방식)
-                        setTimeout(window.initKorea1Map, 100);
-
-                    } else if (location === 'korea2' && korea2Map) {
-                        korea2Map.style.display = 'block';
-                        if (addressLabel) addressLabel.textContent = '한국 2창고:';
-                        if (addressText) addressText.textContent = '경기도 광주시 도척면 도척로 401-65';
-                        if (tabs[1]) tabs[1].classList.add('active');
-
-                        // 한국 2창고 지도 초기화 (재시도 카운트 리셋)
-                        window.korea2MapRetryCount = 0;
-                        setTimeout(window.initKorea2Map, 300);
-
-                    } else if (location === 'china' && chinaMap) {
-                        chinaMap.style.display = 'block';
-                        if (addressLabel) addressLabel.textContent = '중국 창고:';
-                        if (addressText) addressText.textContent = '广东省深圳市宝安区松岗街道仓库园区';
-                        if (tabs[2]) tabs[2].classList.add('active');
-                    }
                 }
+
+                if (location === 'korea1') {
+                    if (korea1Map) korea1Map.style.display = 'block';
+                    if (addressLabel) addressLabel.textContent = '한국 1창고:';
+                    if (address) address.textContent = '경기도 광주시 도척면 도척로 489 (GD TRADE)';
+                    if (tabs[0]) tabs[0].classList.add('active');
+
+                    // 한국 1창고 지도 초기화
+                    if (window.initKorea1Map) {
+                        window.initKorea1Map();
+                    } else if (window.kakaoMapLoader) {
+                        window.kakaoMapLoader.loadMap();
+                    }
+
+                } else if (location === 'korea2') {
+                    if (korea2Map) korea2Map.style.display = 'block';
+                    if (addressLabel) addressLabel.textContent = '한국 2창고:';
+                    if (address) address.textContent = '경기도 광주시 도척면 도척로 401-65';
+                    if (tabs[1]) tabs[1].classList.add('active');
+
+                    // 한국 2창고 지도 초기화 (Daum Roughmap)
+                    if (window.initKorea2Map) {
+                        window.initKorea2Map();
+                    }
+
+                } else if (location === 'china') {
+                    if (chinaMap) chinaMap.style.display = 'block';
+                    if (addressLabel) addressLabel.textContent = '중국 창고:';
+                    if (address) address.textContent = '广东省深圳市宝安区松岗街道仓库园区';
+                    if (tabs[2]) tabs[2].classList.add('active');
+                }
+            };
+
+            // 한국 1창고 지도 초기화 (Kakao Maps SDK)
+            window.initKorea1Map = function() {
+                if (window.kakaoMap1Initialized) {
+                    console.log('✅ 한국 1창고 지도 이미 초기화됨');
+                    return;
+                }
+                console.log('🗺️ 한국 1창고 지도 초기화 시도...');
+                if (window.kakaoMapLoader) {
+                    window.kakaoMapLoader.loadMap();
+                }
+            };
+
+            // 한국 2창고 지도 초기화 (Kakao Maps SDK - 한국 1창고와 동일 방식)
+            window.korea2MapInitialized = false;
+            window.initKorea2Map = function() {
+                if (window.korea2MapInitialized) {
+                    console.log('✅ 한국 2창고 지도 이미 초기화됨');
+                    return;
+                }
+
+                // 중복 호출 방지 - 즉시 플래그 설정
+                window.korea2MapInitialized = true;
+
+                console.log('🗺️ 한국 2창고 지도 초기화 시도...');
+                const container = document.getElementById('korea2-map');
+                if (!container) {
+                    window.korea2MapInitialized = false;
+                    return;
+                }
+
+                // SDK 로드 확인
+                if (typeof kakao === 'undefined' || typeof kakao.maps === 'undefined') {
+                    console.error('❌ 카카오맵 SDK가 로드되지 않았습니다');
+                    window.korea2MapInitialized = false;
+                    return;
+                }
+
+                // 지도 컨테이너 준비
+                container.innerHTML = '<div id="kakao-map-render-2" style="width:100%;height:100%;min-height:400px;"></div>';
+
+                const address = '경기도 광주시 도척면 도척로 401-65';
+                const geocoder = new kakao.maps.services.Geocoder();
+
+                geocoder.addressSearch(address, (result, status) => {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                        console.log('✅ 한국 2창고 주소 변환 성공:', address);
+
+                        const map = new kakao.maps.Map(document.getElementById('kakao-map-render-2'), {
+                            center: coords,
+                            level: 3
+                        });
+
+                        const marker = new kakao.maps.Marker({
+                            map: map,
+                            position: coords
+                        });
+
+                        const infowindow = new kakao.maps.InfoWindow({
+                            content: '<div style="padding:10px;font-size:12px;width:200px;"><strong>GD TRADE 2창고</strong><br>' + address + '</div>'
+                        });
+
+                        kakao.maps.event.addListener(marker, 'click', () => {
+                            infowindow.open(map, marker);
+                        });
+
+                        infowindow.open(map, marker);
+
+                        const zoomControl = new kakao.maps.ZoomControl();
+                        map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+                        console.log('✅ 한국 2창고 지도 로드 완료');
+                    } else {
+                        console.error('❌ 한국 2창고 주소 변환 실패:', status);
+                        container.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f5f5f5;">
+                                <p style="margin-bottom: 10px;">지도 로딩에 실패했습니다</p>
+                                <a href="https://map.kakao.com/?q=${encodeURIComponent(address)}" target="_blank" style="color: #2563eb;">
+                                    카카오맵에서 보기
+                                </a>
+                            </div>
+                        `;
+                        window.korea2MapInitialized = false;
+                    }
+                });
             };
 
             // Old KakaoMap API initialization function - replaced with KakaoMapLoader class
@@ -2544,15 +2666,25 @@
                 this.loadingTimeout = null;
                 this.retryCount = 0;
                 this.maxRetries = 3;
-                this.mapCreatedSuccessfully = false;
                 this.init();
             }
 
             init() {
-                this.mapCreatedSuccessfully = false;
+                // 이미 직접 초기화가 완료된 경우 스킵
+                if (window.kakaoMap1Initialized) {
+                    console.log('✅ KakaoMapLoader: 직접 초기화 완료 확인, 스킵');
+                    return;
+                }
+
                 this.mapContainer = document.getElementById('korea1-map');
                 if (!this.mapContainer) {
                     console.error('❌ KakaoMap: 지도 컨테이너를 찾을 수 없습니다');
+                    return;
+                }
+
+                // kakao-map-render가 이미 존재하면 초기화 완료로 간주
+                if (this.mapContainer.querySelector('#kakao-map-render')) {
+                    console.log('✅ KakaoMapLoader: 지도 이미 생성됨, 스킵');
                     return;
                 }
 
@@ -2697,8 +2829,7 @@
                         // 지도를 생성합니다
                         const map = new kakao.maps.Map(mapContainer, mapOption);
 
-                        // 지도 생성 성공 - 타임아웃 취소 및 플래그 설정
-                        this.mapCreatedSuccessfully = true;
+                        // 지도 생성 성공 - 타임아웃 취소
                         clearTimeout(this.loadingTimeout);
                         console.log('✅ KakaoMap: 지도 객체 생성 완료');
 
@@ -2824,20 +2955,6 @@
             }
 
             handleTimeout() {
-                // 이미 지도가 성공적으로 생성되었으면 타임아웃 무시
-                if (this.mapCreatedSuccessfully) {
-                    console.log('✅ KakaoMap: 지도가 이미 생성됨, 타임아웃 무시');
-                    return;
-                }
-
-                // DOM에서 지도가 실제로 렌더링되었는지 확인
-                const mapElement = this.mapContainer.querySelector('.kakao-map-container');
-                if (mapElement && mapElement.querySelector('div[id^="kakao-map-"]')) {
-                    console.log('✅ KakaoMap: DOM에서 지도 확인됨, 타임아웃 무시');
-                    this.mapCreatedSuccessfully = true;
-                    return;
-                }
-
                 console.log('⏰ KakaoMap: 타임아웃 발생, 대안으로 전환');
                 this.showFallbackStaticMap();
             }
@@ -2953,96 +3070,21 @@
             clearErrors() {
                 this.errors = [];
             }
-
-            // 지도 재초기화 메서드 (탭 전환 시 사용)
-            reinitializeMap() {
-                console.log('🔄 KakaoMap: 재초기화 시작...');
-                this.mapCreatedSuccessfully = false;
-                this.mapContainer = document.getElementById('korea1-map');
-                if (!this.mapContainer) {
-                    console.error('❌ KakaoMap: 지도 컨테이너를 찾을 수 없습니다');
-                    return;
-                }
-
-                // 기존 카카오맵 컨테이너가 있으면 지도 다시 렌더링
-                const existingKakaoMap = this.mapContainer.querySelector('.kakao-map-container');
-                if (existingKakaoMap) {
-                    // 이미 지도가 있으면 리사이즈 트리거
-                    if (window.kakao && kakao.maps) {
-                        const mapElement = existingKakaoMap.querySelector('[id^="kakao-map-"]');
-                        if (mapElement && mapElement._kakao_map) {
-                            mapElement._kakao_map.relayout();
-                            console.log('✅ KakaoMap: 지도 relayout 완료');
-                            return;
-                        }
-                    }
-                }
-
-                // 폴백 콘텐츠가 있는지 확인 (링크 버튼이 있으면 폴백 상태)
-                const hasFallbackContent = this.mapContainer.querySelector('a[href*="map.kakao.com"]');
-                if (hasFallbackContent) {
-                    console.log('🔄 KakaoMap: 폴백 상태 감지, 지도 다시 로드...');
-                    // 폴백 콘텐츠 제거하고 원래 구조 복원
-                    this.restoreOriginalStructure();
-                }
-
-                // 지도가 없거나 잘못된 상태면 새로 로드
-                this.loadMap();
-            }
-
-            // 원래 지도 구조 복원
-            restoreOriginalStructure() {
-                if (!this.mapContainer) return;
-
-                // 기존 내용 비우고 원래 구조 복원
-                this.mapContainer.innerHTML = `
-                    <!-- 로딩 상태 -->
-                    <div class="map-loading" style="display: none;">
-                        <div class="loading-spinner"></div>
-                        <p>지도를 불러오는 중입니다...</p>
-                    </div>
-
-                    <!-- 에러 상태 -->
-                    <div class="map-error" style="display: none;">
-                        <div class="error-icon">⚠️</div>
-                        <p>지도 로딩에 실패했습니다</p>
-                        <button onclick="window.kakaoMapLoader.loadMap()" class="retry-button">다시 시도</button>
-                    </div>
-
-                    <!-- 폴백 콘텐츠 -->
-                    <div class="map-fallback" style="display: none;">
-                        <a href="https://map.kakao.com/?urlX=573831&urlY=1058473&urlLevel=2&map_type=TYPE_SKYVIEW&map_hybrid=true"
-                           target="_blank" rel="noopener noreferrer"
-                           class="static-map-link">
-                            <img src="https://staticmap.kakao.com/map/skyviewmapservice?FORMAT=PNG&RDR=HybridRender&SCALE=1.25&MX=573830&MY=1058474&S=0&IW=640&IH=360&LANG=0&COORDSTM=WCONGNAMUL&logo=kakao_logo"
-                                 alt="GD TRADE 본사 위치 (카카오맵 하이브리드 뷰)"
-                                 class="static-map-image">
-                        </a>
-                        <div class="location-info">
-                            <h3>GD TRADE 본사</h3>
-                            <p>📍 경기도 광주시 도척면 도척로 489</p>
-                            <p><small>이미지를 클릭하면 카카오맵에서 자세히 볼 수 있습니다</small></p>
-                        </div>
-                    </div>
-                `;
-                console.log('✅ KakaoMap: 원래 구조 복원 완료');
-            }
         }
 
         // 전역 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            // 한국 1창고 지도 초기화 (SDK 방식 - 간단한 초기화)
-            if (document.getElementById('korea1-map-container')) {
+            // KakaoMap Loader 초기화
+            if (document.getElementById('korea1-map')) {
                 // Kakao Maps SDK가 완전히 로드될 때까지 대기
                 setTimeout(() => {
-                    window.initKorea1Map();
-                }, 500); // 0.5초 대기하여 SDK 로딩 보장
+                    window.kakaoMapLoader = new KakaoMapLoader();
+                    window.mapErrorLogger = new MapErrorLogger();
+                    new MapResizeHandler();
+                }, 1000); // 1초 대기하여 SDK 로딩 보장
             }
         });
 
     </script>
-
-    <!-- 카카오맵 지도퍼가기 스크립트 (한국 2창고용) -->
-    <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
 </body>
 </html>
