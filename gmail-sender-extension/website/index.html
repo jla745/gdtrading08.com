@@ -1219,6 +1219,32 @@
             fill: #cc0000;
         }
 
+        /* Thumbnail Loading Spinner */
+        .thumbnail-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 3;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px 40px;
+            border-radius: 12px;
+        }
+
+        .thumbnail-loading i {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ff0000;
+        }
+
+        .thumbnail-loading p {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
         /* Loading Indicator */
         .about-card .video-loading {
             position: absolute;
@@ -1683,27 +1709,25 @@
 
         <div class="about-card" data-aos="fade-up">
                 <div class="video-container youtube-shorts" id="youtube-video-container">
-                    <!-- YouTube Thumbnail Placeholder (Lazy Load) -->
+                    <!-- YouTube Thumbnail Placeholder (Shows while loading) -->
                     <div class="youtube-placeholder" id="youtube-placeholder">
                         <img
                             src="https://img.youtube.com/vi/_MxIiCA3cRs/maxresdefault.jpg"
                             alt="GD TRADE 소개 동영상 썸네일"
                             class="youtube-thumbnail"
                             loading="lazy">
-                        <button class="youtube-play-btn" id="youtube-play-btn" aria-label="동영상 재생">
-                            <svg viewBox="0 0 68 48" width="68" height="48">
-                                <path class="youtube-play-bg" d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="#FF0000"/>
-                                <path d="M 45,24 27,14 27,34" fill="#fff"/>
-                            </svg>
-                        </button>
+                        <div class="loading-spinner thumbnail-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>동영상 로딩 중...</p>
+                        </div>
                     </div>
 
-                    <!-- YouTube Shorts Video (Loaded on Click) -->
-                    <div class="video-wrapper" id="video-wrapper" style="display: none;">
+                    <!-- YouTube Shorts Video (Lazy loaded via Intersection Observer) -->
+                    <div class="video-wrapper" id="video-wrapper">
                         <iframe
                             id="youtube-iframe"
                             class="youtube-iframe"
-                            data-src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&loop=1&playlist=_MxIiCA3cRs&autoplay=1"
+                            data-src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&autoplay=1&mute=1&loop=1&playlist=_MxIiCA3cRs"
                             title="GD TRADE 소개 동영상 (YouTube Shorts)"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen>
@@ -1711,7 +1735,7 @@
 
                       </div>
 
-                    <!-- Loading Indicator -->
+                    <!-- Loading Indicator (Legacy, hidden by default) -->
                     <div class="video-loading" id="video-loading" style="display: none;">
                         <div class="loading-spinner">
                             <i class="fas fa-spinner fa-spin"></i>
@@ -2094,63 +2118,62 @@
             // Initialize Navigation
             new NavigationManager();
 
-            // YouTube Optimized Player with Lazy Loading and Click-to-Play
+            // YouTube Optimized Player with Intersection Observer (Auto-play when visible)
             class YouTubeOptimizedPlayer {
                 constructor() {
                     this.iframe = document.getElementById('youtube-iframe');
-                    this.loading = document.getElementById('video-loading');
                     this.fallback = document.getElementById('video-fallback');
                     this.placeholder = document.getElementById('youtube-placeholder');
-                    this.playBtn = document.getElementById('youtube-play-btn');
                     this.videoWrapper = document.getElementById('video-wrapper');
+                    this.videoContainer = document.getElementById('youtube-video-container');
                     this.hasError = false;
                     this.loadingTimeout = null;
-                    this.isPlaying = false;
+                    this.isLoaded = false;
 
                     this.init();
                 }
 
                 init() {
-                    console.log('🎥 Initializing YouTube Optimized Player (Lazy Load)');
-                    this.setupClickToPlay();
+                    console.log('🎥 Initializing YouTube Optimized Player (Intersection Observer)');
+                    this.setupIntersectionObserver();
                 }
 
-                setupClickToPlay() {
-                    // Click on placeholder or play button to load video
-                    if (this.placeholder) {
-                        this.placeholder.addEventListener('click', () => this.loadAndPlay());
-                    }
-                    if (this.playBtn) {
-                        this.playBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            this.loadAndPlay();
-                        });
+                setupIntersectionObserver() {
+                    // Check if Intersection Observer is supported
+                    if ('IntersectionObserver' in window) {
+                        const options = {
+                            root: null,
+                            rootMargin: '100px', // Start loading 100px before visible
+                            threshold: 0.1
+                        };
+
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting && !this.isLoaded) {
+                                    console.log('🎥 Video container is visible - loading YouTube');
+                                    this.loadVideo();
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        }, options);
+
+                        if (this.videoContainer) {
+                            observer.observe(this.videoContainer);
+                        }
+                    } else {
+                        // Fallback: load immediately for older browsers
+                        console.log('🎥 IntersectionObserver not supported - loading immediately');
+                        this.loadVideo();
                     }
                 }
 
-                loadAndPlay() {
-                    if (this.isPlaying) return;
-                    this.isPlaying = true;
+                loadVideo() {
+                    if (this.isLoaded) return;
+                    this.isLoaded = true;
 
-                    console.log('🎥 User clicked play - loading YouTube video');
+                    console.log('🎥 Starting YouTube video load');
 
-                    // Show loading indicator
-                    if (this.loading) {
-                        this.loading.style.display = 'flex';
-                        this.loading.style.opacity = '1';
-                    }
-
-                    // Hide placeholder
-                    if (this.placeholder) {
-                        this.placeholder.style.display = 'none';
-                    }
-
-                    // Show video wrapper
-                    if (this.videoWrapper) {
-                        this.videoWrapper.style.display = 'block';
-                    }
-
-                    // Load iframe with actual src
+                    // Load iframe with actual src (includes autoplay=1&mute=1)
                     if (this.iframe && this.iframe.dataset.src) {
                         this.iframe.src = this.iframe.dataset.src;
                         this.iframe.addEventListener('load', () => this.onIframeLoad());
@@ -2161,7 +2184,7 @@
 
                 onIframeLoad() {
                     console.log('🎥 YouTube iframe loaded successfully');
-                    this.hideLoading();
+                    this.hidePlaceholder();
                 }
 
                 onIframeError(error) {
@@ -2171,22 +2194,25 @@
 
                 startLoadingTimer() {
                     this.loadingTimeout = setTimeout(() => {
-                        if (!this.hasError) {
-                            console.warn('🎥 YouTube loading timeout, showing fallback');
-                            this.showFallback();
+                        if (!this.hasError && this.placeholder) {
+                            // If still showing placeholder after 5s, hide it anyway
+                            // (video might be playing but load event didn't fire correctly)
+                            console.log('🎥 Timeout - hiding placeholder');
+                            this.hidePlaceholder();
                         }
                     }, 5000); // 5 second timeout
                 }
 
-                hideLoading() {
+                hidePlaceholder() {
                     if (this.loadingTimeout) {
                         clearTimeout(this.loadingTimeout);
                         this.loadingTimeout = null;
                     }
-                    if (this.loading) {
-                        this.loading.style.opacity = '0';
+                    if (this.placeholder) {
+                        this.placeholder.style.opacity = '0';
+                        this.placeholder.style.transition = 'opacity 0.3s ease';
                         setTimeout(() => {
-                            if (this.loading) this.loading.style.display = 'none';
+                            if (this.placeholder) this.placeholder.style.display = 'none';
                         }, 300);
                     }
                 }
@@ -2197,8 +2223,8 @@
                         clearTimeout(this.loadingTimeout);
                         this.loadingTimeout = null;
                     }
-                    if (this.loading) {
-                        this.loading.style.display = 'none';
+                    if (this.placeholder) {
+                        this.placeholder.style.display = 'none';
                     }
                     if (this.fallback) {
                         this.fallback.style.display = 'flex';
