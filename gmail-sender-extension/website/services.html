@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GD TRADE - 서비스 안내">
+    <title>GD TRADE - 서비스</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: var(--white);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 50px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu .dropdown {
+            position: relative;
+        }
+
+        .nav-menu .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 10px 0;
+            min-width: 200px;
+            z-index: 1001;
+        }
+
+        .nav-menu .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .nav-menu .dropdown-menu li {
+            list-style: none;
+        }
+
+        .nav-menu .dropdown-menu a {
+            display: block;
+            padding: 12px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .nav-menu .dropdown-menu a:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-top: 80px;
+            min-height: 40vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .page-header h1 {
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .page-header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 60px;
+        }
+
+        .section {
+            margin-bottom: 100px;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.2em;
+            color: var(--gray);
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* Service Cards */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        .service-icon {
+            font-size: 4em;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .service-card h3 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .service-card p {
+            font-size: 1.1em;
+            color: var(--gray);
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .service-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .service-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--gray);
+            font-size: 1.05em;
+        }
+
+        .service-list li:last-child {
+            border-bottom: none;
+        }
+
+        .service-list li:before {
+            content: "✓ ";
+            color: var(--secondary);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Process Section */
+        .process-timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .process-step {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+            align-items: center;
+        }
+
+        .step-number {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: 900;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .step-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-content h4 {
+            font-size: 1.8em;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .step-content p {
+            font-size: 1.1em;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Floating Contact */
+        #floating-contact {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #floating-contact .btn {
+            width: 140px;
+            padding: 15px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #floating-contact .btn:hover {
+            transform: translateX(-8px) scale(1.05);
+        }
+
+        .contact-call {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .contact-kakao {
+            background: #FEE500;
+            color: #371D1E;
+        }
+
+        .contact-kakao img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .contact-apply {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: #94a3b8;
+            padding: 60px 60px 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5em;
+            }
+
+            .process-step {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            #floating-contact {
+                flex-direction: row;
+                right: 15px;
+                left: 15px;
+                top: auto;
+                bottom: 15px;
+                transform: none;
+            }
+
+            #floating-contact .btn {
+                flex: 1;
+                width: auto;
+                padding: 12px 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">GD TRADE</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">홈</a></li>
+                <li>
+                    <a href="china-market-tour.html">중국 시장 투어</a>
+                </li>
+                <li><a href="services.html">서비스</a></li>
+                <li><a href="about.html">회사소개</a></li>
+                <li><a href="contact.html">연락처</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div data-aos="fade-up">
+            <h1>서비스</h1>
+            <p>생산 공정의 모든 단계를 책임집니다</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Core Services -->
+        <section class="section">
+            <h2 class="section-title" data-aos="fade-up">핵심 서비스</h2>
+            <p class="section-subtitle" data-aos="fade-up">품질, 단가 협의 / 안정적 생산 / 검품 / 선적 / 포장 / 바코드 등</p>
+
+            <div class="service-grid">
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                    <span class="service-icon">🏭</span>
+                    <h3>OEM/ODM 생산</h3>
+                    <p>공장직영 시스템으로 고품질 제품을 경쟁력 있는 가격에 생산합니다.</p>
+                    <ul class="service-list">
+                        <li>공장 직접 계약 및 관리</li>
+                        <li>맞춤형 제품 개발</li>
+                        <li>품질 관리 시스템</li>
+                        <li>대량 생산 가능</li>
+                    </ul>
+                </div>
+
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                    <span class="service-icon">💰</span>
+                    <h3>가격 협상</h3>
+                    <p>23년 경력을 바탕으로 최적의 단가를 협의해드립니다.</p>
+                    <ul class="service-list">
+                        <li>공장 직접 협상</li>
+                        <li>수량별 최적 단가</li>
+                        <li>투명한 견적</li>
+                        <li>중간 마진 없음</li>
+                    </ul>
+                </div>
+
+                <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+                    <span class="service-icon">✓</span>
+                    <h3>품질 검수</h3>
+                    <p>전문가가 직접 현장에서 제품을 검수합니다.</p>
+                    <ul class="service-list">
+                        <li>생산 과정 모니터링</li>
+                        <li>완제품 전수 검사</li>
+                        <li>품질 기준 관리</li>
+                        <li>불량품 사전 차단</li>
+                    </ul>
+                </div>
+
+                <div class="service-card" data-aos="fade-up" data-aos-delay="400">
+                    <span class="service-icon">📦</span>
+                    <h3>포장 및 배송</h3>
+                    <p>제품 특성에 맞는 안전한 포장과 신속한 배송을 보장합니다.</p>
+                    <ul class="service-list">
+                        <li>맞춤형 포장 디자인</li>
+                        <li>바코드 부착</li>
+                        <li>라벨링 서비스</li>
+                        <li>통관 대행</li>
+                    </ul>
+                </div>
+
+                <div class="service-card" data-aos="fade-up" data-aos-delay="500">
+                    <span class="service-icon">🚢</span>
+                    <h3>선적 관리</h3>
+                    <p>효율적인 물류 시스템으로 안전하고 빠른 선적을 지원합니다.</p>
+                    <ul class="service-list">
+                        <li>최적 물류 경로 선택</li>
+                        <li>선적 일정 관리</li>
+                        <li>실시간 화물 추적</li>
+                        <li>통관 서류 대행</li>
+                    </ul>
+                </div>
+
+                <div class="service-card" data-aos="fade-up" data-aos-delay="600">
+                    <span class="service-icon">🤝</span>
+                    <h3>A/S 지원</h3>
+                    <p>거래 후에도 지속적인 관리와 지원을 제공합니다.</p>
+                    <ul class="service-list">
+                        <li>불량품 교환/환불</li>
+                        <li>추가 주문 지원</li>
+                        <li>지속적인 품질 관리</li>
+                        <li>24시간 고객 상담</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Process -->
+        <section class="section">
+            <h2 class="section-title" data-aos="fade-up">진행 과정</h2>
+            <p class="section-subtitle" data-aos="fade-up">체계적인 프로세스로 안전하게 진행합니다</p>
+
+            <div class="process-timeline">
+                <div class="process-step" data-aos="fade-right">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>상담 및 견적</h4>
+                        <p>고객님의 요구사항을 정확히 파악하고 최적의 견적을 제시합니다.</p>
+                    </div>
+                </div>
+
+                <div class="process-step" data-aos="fade-right" data-aos-delay="100">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>공장 선정 및 계약</h4>
+                        <p>제품에 맞는 최적의 공장을 선정하고 계약을 진행합니다.</p>
+                    </div>
+                </div>
+
+                <div class="process-step" data-aos="fade-right" data-aos-delay="200">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>샘플 제작 및 승인</h4>
+                        <p>샘플을 제작하여 고객님의 승인을 받습니다.</p>
+                    </div>
+                </div>
+
+                <div class="process-step" data-aos="fade-right" data-aos-delay="300">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>대량 생산</h4>
+                        <p>승인된 샘플을 기준으로 대량 생산을 진행합니다.</p>
+                    </div>
+                </div>
+
+                <div class="process-step" data-aos="fade-right" data-aos-delay="400">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>품질 검수</h4>
+                        <p>전문가가 직접 현장에서 제품을 검수합니다.</p>
+                    </div>
+                </div>
+
+                <div class="process-step" data-aos="fade-right" data-aos-delay="500">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h4>포장 및 선적</h4>
+                        <p>안전하게 포장하여 한국으로 선적합니다.</p>
+                    </div>
+                </div>
+
+                <div class="process-step" data-aos="fade-right" data-aos-delay="600">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <h4>통관 및 배송</h4>
+                        <p>통관 절차를 대행하고 안전하게 배송합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Floating Contact -->
+    <div id="floating-contact">
+        <a href="tel:010-8781-3083" class="btn contact-call">
+            <span>📞</span>
+            <span class="text">전화상담</span>
+        </a>
+        <a href="https://pf.kakao.com/_xoDxaln/chat" target="_blank" class="btn contact-kakao">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg" alt="카카오톡">
+            <span class="text">카톡상담</span>
+        </a>
+        <a href="contact.html" class="btn contact-apply">
+            <span>✈️</span>
+            <span class="text">투어신청</span>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 GD TRADE. All rights reserved. | 대표: 이상섭 | 한국: 경기도 광주시 | 중국: 江南4区95栋2号元一楼仓库</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+</body>
+</html>

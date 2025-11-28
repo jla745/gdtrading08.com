@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GD TRADE - 회사소개 및 중국 시장 투어">
+    <title>GD TRADE - 회사소개</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: var(--white);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 50px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu .dropdown {
+            position: relative;
+        }
+
+        .nav-menu .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 10px 0;
+            min-width: 200px;
+            z-index: 1001;
+        }
+
+        .nav-menu .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .nav-menu .dropdown-menu li {
+            list-style: none;
+        }
+
+        .nav-menu .dropdown-menu a {
+            display: block;
+            padding: 12px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .nav-menu .dropdown-menu a:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-top: 80px;
+            min-height: 40vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .page-header h1 {
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .page-header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 60px;
+        }
+
+        .section {
+            margin-bottom: 100px;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.2em;
+            color: var(--gray);
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* Company Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-card h3 {
+            font-size: 1.8em;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .info-card p {
+            font-size: 1.1em;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Tour Section */
+        .tour-features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 60px;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 25px 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.2em;
+            margin-bottom: 12px;
+        }
+
+        .feature-item h4 {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-item p {
+            font-size: 0.9em;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* CEO Section */
+        .ceo-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 80px;
+            border-radius: 30px;
+            text-align: center;
+        }
+
+        .ceo-section h2 {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 30px;
+        }
+
+        .ceo-section p {
+            font-size: 1.3em;
+            color: var(--gray);
+            line-height: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Floating Contact */
+        #floating-contact {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #floating-contact .btn {
+            width: 140px;
+            padding: 15px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #floating-contact .btn:hover {
+            transform: translateX(-8px) scale(1.05);
+        }
+
+        .contact-call {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .contact-kakao {
+            background: #FEE500;
+            color: #371D1E;
+        }
+
+        .contact-kakao img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .contact-apply {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: #94a3b8;
+            padding: 60px 60px 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5em;
+            }
+
+            #floating-contact {
+                flex-direction: row;
+                right: 15px;
+                left: 15px;
+                top: auto;
+                bottom: 15px;
+                transform: none;
+            }
+
+            #floating-contact .btn {
+                flex: 1;
+                width: auto;
+                padding: 12px 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">GD TRADE</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">홈</a></li>
+                <li>
+                    <a href="china-market-tour.html">중국 시장 투어</a>
+                </li>
+                <li><a href="services.html">서비스</a></li>
+                <li><a href="about.html">회사소개</a></li>
+                <li><a href="contact.html">연락처</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div data-aos="fade-up">
+            <h1>회사소개</h1>
+            <p>23년 경력의 중국 무역 전문가가 함께합니다</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Company Introduction -->
+        <section class="section">
+            <h2 class="section-title" data-aos="fade-up">GD TRADE를 소개합니다</h2>
+            <p class="section-subtitle" data-aos="fade-up">공장직영 OEM, ODM 생산 전문 업체</p>
+
+            <div class="info-grid">
+                <div class="info-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3>🎯 전문성</h3>
+                    <p>23년간 축적된 중국 무역 노하우와 현지 네트워크를 바탕으로 최상의 서비스를 제공합니다.</p>
+                </div>
+                <div class="info-card" data-aos="fade-up" data-aos-delay="200">
+                    <h3>🤝 신뢰성</h3>
+                    <p>품질, 단가 협의부터 검품, 선적까지 모든 과정을 투명하게 관리합니다.</p>
+                </div>
+                <div class="info-card" data-aos="fade-up" data-aos-delay="300">
+                    <h3>⚡ 효율성</h3>
+                    <p>공장직영 시스템으로 중간 마진 없이 경쟁력 있는 가격을 제공합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CEO Section -->
+        <section class="section">
+            <div class="ceo-section" data-aos="fade-up">
+                <h2>대표 이상섭 인사말</h2>
+                <p>
+                    안녕하십니까, GD TRADE 대표 이상섭입니다.<br><br>
+                    23년간 중국 무역 현장에서 쌓아온 경험과 노하우를 바탕으로<br>
+                    고객님들께 최상의 서비스를 제공하고 있습니다.<br><br>
+                    생산 공정의 모든 단계를 직접 관리하며,<br>
+                    품질과 신뢰를 최우선으로 생각합니다.<br><br>
+                    고객님의 성공이 곧 저희의 성공입니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- China Market Tour -->
+        <section class="section">
+            <h2 class="section-title" data-aos="fade-up">중국 시장 투어</h2>
+            <p class="section-subtitle" data-aos="fade-up">세계 최대 도매시장, 이우시장을 직접 체험하세요</p>
+
+            <div class="tour-features">
+                <div class="feature-item" data-aos="flip-left" data-aos-delay="100">
+                    <div class="feature-icon">🏭</div>
+                    <h4>공장 방문</h4>
+                    <p>직접 생산 공정을 확인하고 품질을 검증합니다</p>
+                </div>
+                <div class="feature-item" data-aos="flip-left" data-aos-delay="200">
+                    <div class="feature-icon">🛍️</div>
+                    <h4>이우시장 탐방</h4>
+                    <p>세계 최대 규모의 도매시장을 전문가와 함께 둘러봅니다</p>
+                </div>
+                <div class="feature-item" data-aos="flip-left" data-aos-delay="300">
+                    <div class="feature-icon">💼</div>
+                    <h4>상담 및 계약</h4>
+                    <p>현장에서 직접 단가 협의와 계약을 진행합니다</p>
+                </div>
+                <div class="feature-item" data-aos="flip-left" data-aos-delay="400">
+                    <div class="feature-icon">🍜</div>
+                    <h4>문화 체험</h4>
+                    <p>중국의 문화와 비즈니스 환경을 직접 경험합니다</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Floating Contact -->
+    <div id="floating-contact">
+        <a href="tel:010-8781-3083" class="btn contact-call">
+            <span>📞</span>
+            <span class="text">전화상담</span>
+        </a>
+        <a href="https://pf.kakao.com/_xoDxaln/chat" target="_blank" class="btn contact-kakao">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg" alt="카카오톡">
+            <span class="text">카톡상담</span>
+        </a>
+        <a href="contact.html" class="btn contact-apply">
+            <span>✈️</span>
+            <span class="text">투어신청</span>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 GD TRADE. All rights reserved. | 대표: 이상섭 | 한국: 경기도 광주시 | 중국: 江南4区95栋2号元一楼仓库</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+</body>
+</html>
