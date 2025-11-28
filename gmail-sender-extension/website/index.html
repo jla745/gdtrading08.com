@@ -16,6 +16,12 @@
     <link rel="dns-prefetch" href="//code.jquery.com">
     <link rel="dns-prefetch" href="//www.google.com">
     <link rel="dns-prefetch" href="//www.youtube.com">
+    <link rel="dns-prefetch" href="//img.youtube.com">
+    <link rel="dns-prefetch" href="//i.ytimg.com">
+
+    <!-- YouTube Preconnect for Faster Video Loading -->
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://img.youtube.com" crossorigin>
 
     <!-- 권한 정책 설정 -->
     <meta http-equiv="Permissions-Policy" content="clipboard-read=*, clipboard-write=*, geolocation=*, microphone=*, camera=*">
@@ -1161,6 +1167,58 @@
 
         /* REMOVED: Custom Overlay Controls - Violates YouTube API Policy */
 
+        /* YouTube Placeholder with Thumbnail (Performance Optimization) */
+        .youtube-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+            background: #000;
+        }
+
+        .youtube-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .youtube-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .youtube-play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            filter: brightness(1.1);
+        }
+
+        .youtube-play-btn:focus {
+            outline: 2px solid #fff;
+            outline-offset: 4px;
+        }
+
+        .youtube-play-btn svg {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .youtube-play-bg {
+            transition: fill 0.2s ease;
+        }
+
+        .youtube-play-btn:hover .youtube-play-bg {
+            fill: #cc0000;
+        }
+
         /* Loading Indicator */
         .about-card .video-loading {
             position: absolute;
@@ -1625,22 +1683,36 @@
 
         <div class="about-card" data-aos="fade-up">
                 <div class="video-container youtube-shorts" id="youtube-video-container">
-                    <!-- YouTube Shorts Video -->
-                    <div class="video-wrapper" id="video-wrapper">
+                    <!-- YouTube Thumbnail Placeholder (Lazy Load) -->
+                    <div class="youtube-placeholder" id="youtube-placeholder">
+                        <img
+                            src="https://img.youtube.com/vi/_MxIiCA3cRs/maxresdefault.jpg"
+                            alt="GD TRADE 소개 동영상 썸네일"
+                            class="youtube-thumbnail"
+                            loading="lazy">
+                        <button class="youtube-play-btn" id="youtube-play-btn" aria-label="동영상 재생">
+                            <svg viewBox="0 0 68 48" width="68" height="48">
+                                <path class="youtube-play-bg" d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="#FF0000"/>
+                                <path d="M 45,24 27,14 27,34" fill="#fff"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- YouTube Shorts Video (Loaded on Click) -->
+                    <div class="video-wrapper" id="video-wrapper" style="display: none;">
                         <iframe
                             id="youtube-iframe"
                             class="youtube-iframe"
-                            src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&loop=1&playlist=_MxIiCA3cRs"
+                            data-src="https://www.youtube.com/embed/_MxIiCA3cRs?rel=0&modestbranding=1&autohide=1&showinfo=0&controls=1&fs=1&loop=1&playlist=_MxIiCA3cRs&autoplay=1"
                             title="GD TRADE 소개 동영상 (YouTube Shorts)"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen
-                            loading="lazy">
+                            allowfullscreen>
                         </iframe>
 
                       </div>
 
                     <!-- Loading Indicator -->
-                    <div class="video-loading" id="video-loading">
+                    <div class="video-loading" id="video-loading" style="display: none;">
                         <div class="loading-spinner">
                             <i class="fas fa-spinner fa-spin"></i>
                             <p>YouTube Shorts 로딩 중...</p>
@@ -2022,38 +2094,73 @@
             // Initialize Navigation
             new NavigationManager();
 
-            // YouTube Policy Compliant Player (Simple Implementation)
-            class YouTubePolicyCompliantPlayer {
+            // YouTube Optimized Player with Lazy Loading and Click-to-Play
+            class YouTubeOptimizedPlayer {
                 constructor() {
                     this.iframe = document.getElementById('youtube-iframe');
                     this.loading = document.getElementById('video-loading');
                     this.fallback = document.getElementById('video-fallback');
+                    this.placeholder = document.getElementById('youtube-placeholder');
+                    this.playBtn = document.getElementById('youtube-play-btn');
+                    this.videoWrapper = document.getElementById('video-wrapper');
                     this.hasError = false;
                     this.loadingTimeout = null;
+                    this.isPlaying = false;
 
                     this.init();
                 }
 
                 init() {
-                    if (!this.iframe) {
-                        console.error('🎥 YouTube iframe not found');
-                        return;
-                    }
-
-                    console.log('🎥 Initializing YouTube Policy Compliant Player');
-                    this.setupEventListeners();
-                    this.startLoadingTimer();
+                    console.log('🎥 Initializing YouTube Optimized Player (Lazy Load)');
+                    this.setupClickToPlay();
                 }
 
-                setupEventListeners() {
-                    // iframe load events only (no custom controls)
-                    this.iframe.addEventListener('load', () => this.onIframeLoad());
-                    this.iframe.addEventListener('error', (e) => this.onIframeError(e));
+                setupClickToPlay() {
+                    // Click on placeholder or play button to load video
+                    if (this.placeholder) {
+                        this.placeholder.addEventListener('click', () => this.loadAndPlay());
+                    }
+                    if (this.playBtn) {
+                        this.playBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.loadAndPlay();
+                        });
+                    }
+                }
+
+                loadAndPlay() {
+                    if (this.isPlaying) return;
+                    this.isPlaying = true;
+
+                    console.log('🎥 User clicked play - loading YouTube video');
+
+                    // Show loading indicator
+                    if (this.loading) {
+                        this.loading.style.display = 'flex';
+                        this.loading.style.opacity = '1';
+                    }
+
+                    // Hide placeholder
+                    if (this.placeholder) {
+                        this.placeholder.style.display = 'none';
+                    }
+
+                    // Show video wrapper
+                    if (this.videoWrapper) {
+                        this.videoWrapper.style.display = 'block';
+                    }
+
+                    // Load iframe with actual src
+                    if (this.iframe && this.iframe.dataset.src) {
+                        this.iframe.src = this.iframe.dataset.src;
+                        this.iframe.addEventListener('load', () => this.onIframeLoad());
+                        this.iframe.addEventListener('error', (e) => this.onIframeError(e));
+                        this.startLoadingTimer();
+                    }
                 }
 
                 onIframeLoad() {
                     console.log('🎥 YouTube iframe loaded successfully');
-                    // Hide loading immediately for better performance
                     this.hideLoading();
                 }
 
@@ -2068,7 +2175,7 @@
                             console.warn('🎥 YouTube loading timeout, showing fallback');
                             this.showFallback();
                         }
-                    }, 5000); // 5 second timeout (reduced from 10s for better UX)
+                    }, 5000); // 5 second timeout
                 }
 
                 hideLoading() {
@@ -2090,17 +2197,20 @@
                         clearTimeout(this.loadingTimeout);
                         this.loadingTimeout = null;
                     }
+                    if (this.loading) {
+                        this.loading.style.display = 'none';
+                    }
                     if (this.fallback) {
                         this.fallback.style.display = 'flex';
-                        if (this.iframe && this.iframe.parentElement) {
-                            this.iframe.parentElement.style.display = 'none';
+                        if (this.videoWrapper) {
+                            this.videoWrapper.style.display = 'none';
                         }
                     }
                 }
             }
 
             // Initialize YouTube player
-            const youtubePlayer = new YouTubePolicyCompliantPlayer();
+            const youtubePlayer = new YouTubeOptimizedPlayer();
 
             // 권한 정책 위반 감지 및 무시
             const originalConsoleError = console.error;
