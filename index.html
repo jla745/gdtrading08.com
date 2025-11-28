@@ -2229,13 +2229,28 @@
             window.korea2MapInitialized = false;
 
             // 한국 2창고 지도 초기화 함수
+            window.korea2MapRetryCount = 0;
             window.initKorea2Map = function() {
-                if (window.korea2MapInitialized) return;
+                console.log('🔄 한국 2창고 지도 초기화 시도...');
+
+                if (window.korea2MapInitialized) {
+                    console.log('✅ 이미 초기화됨');
+                    return;
+                }
 
                 const container = document.getElementById('daumRoughmapContainer1764306480215');
-                if (!container) return;
+                if (!container) {
+                    console.error('❌ 컨테이너를 찾을 수 없음');
+                    return;
+                }
 
                 // roughmapLoader가 로드되었는지 확인
+                console.log('🔍 daum 객체 확인:', {
+                    daumExists: typeof daum !== 'undefined',
+                    roughmapExists: typeof daum !== 'undefined' && daum.roughmap,
+                    LanderExists: typeof daum !== 'undefined' && daum.roughmap && daum.roughmap.Lander
+                });
+
                 if (typeof daum !== 'undefined' && daum.roughmap && daum.roughmap.Lander) {
                     try {
                         new daum.roughmap.Lander({
@@ -2250,8 +2265,14 @@
                         console.error('❌ 한국 2창고 지도 초기화 실패:', e);
                     }
                 } else {
-                    // roughmapLoader 스크립트 로드 대기
-                    setTimeout(window.initKorea2Map, 500);
+                    // roughmapLoader 스크립트 로드 대기 (최대 10회 재시도)
+                    window.korea2MapRetryCount++;
+                    if (window.korea2MapRetryCount < 10) {
+                        console.log('⏳ roughmapLoader 대기 중... (시도 ' + window.korea2MapRetryCount + '/10)');
+                        setTimeout(window.initKorea2Map, 500);
+                    } else {
+                        console.error('❌ roughmapLoader 로드 실패 - 최대 재시도 횟수 초과');
+                    }
                 }
             };
 
@@ -2291,8 +2312,9 @@
                         if (addressText) addressText.textContent = '경기도 광주시 도척면 도척로 401-65';
                         if (tabs[1]) tabs[1].classList.add('active');
 
-                        // 한국 2창고 지도 초기화
-                        setTimeout(window.initKorea2Map, 100);
+                        // 한국 2창고 지도 초기화 (재시도 카운트 리셋)
+                        window.korea2MapRetryCount = 0;
+                        setTimeout(window.initKorea2Map, 300);
 
                     } else if (location === 'china' && chinaMap) {
                         chinaMap.style.display = 'block';
@@ -2893,5 +2915,8 @@
         });
 
     </script>
+
+    <!-- 카카오맵 지도퍼가기 스크립트 (한국 2창고용) -->
+    <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
 </body>
 </html>
